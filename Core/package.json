@@ -1,0 +1,11 @@
+{
+    "name": "com.sercanaltun.kegstand",
+    "displayName": "Kegstand Core",
+    "version": "0.1.0",
+    "unity": "2019.3",
+    "description": "Descrete Event Simulation system for Unity3d games.",
+    "keywords": ["Descrete Event Simulation", "simulation"],
+    "category": "Scripting",
+    "dependencies": {
+    }
+}
