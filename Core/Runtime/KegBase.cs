@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Kegstand
@@ -9,11 +10,14 @@ namespace Kegstand
         public float MinAmount { get; private set; }
         public float Amount { get; private set; }
 
+        List<Tap> tapList;
         public KegBase(float maxAmount, float minAmount, float startingAmount)
         {
             MaxAmount = maxAmount;
             MinAmount = minAmount;
             Amount = startingAmount;
+
+            tapList = new List<Tap>();
         }
 
 
@@ -35,6 +39,33 @@ namespace Kegstand
             }
             
             Amount = Mathf.Max(Amount - delta, MinAmount);
+        }
+
+        public void AddTap(Tap tap)
+        {
+            if (tapList.Contains(tap))
+            {
+                return;
+            }
+            tapList.Add(tap);
+        }
+
+        public void Update(float deltaTime)
+        {
+            float delta = 0;
+            foreach (Tap tap in tapList)
+            {
+                delta += tap.FlowAmount;
+            }
+
+            if (delta > 0)
+            {
+                Increment(delta*deltaTime);
+            }
+            else
+            {
+                Decrement(-delta*deltaTime);
+            }
         }
     }
 }
