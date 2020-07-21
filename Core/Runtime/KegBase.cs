@@ -6,18 +6,29 @@ namespace Kegstand
 {
     public class KegBase : Keg
     {
+        private readonly FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
         public float MinAmount { get; private set; }
         public float Amount { get; private set; }
 
-        List<Tap> tapList;
-        public KegBase(float maxAmount, float minAmount, float startingAmount)
+        public float AggregateFlow
         {
+            get => flowCalculator.CalculateAggregateFlow(this);
+        } //private set; }
+
+        public IReadOnlyList<Tap> TapList { get; private set; }
+        List<Tap> tapList;
+        
+        public KegBase(FlowCalculator flowCalculator, float maxAmount, float minAmount, float startingAmount)
+        {
+            this.flowCalculator = flowCalculator;
+            
             MaxAmount = maxAmount;
             MinAmount = minAmount;
             Amount = startingAmount;
 
             tapList = new List<Tap>();
+            TapList = tapList.AsReadOnly();
         }
 
 
@@ -52,12 +63,7 @@ namespace Kegstand
 
         public void Update(float deltaTime)
         {
-            float delta = 0;
-            foreach (Tap tap in tapList)
-            {
-                delta += tap.FlowAmount;
-            }
-
+            var delta = flowCalculator.CalculateAggregateFlow(this);
             if (delta > 0)
             {
                 Increment(delta*deltaTime);
@@ -67,5 +73,6 @@ namespace Kegstand
                 Decrement(-delta*deltaTime);
             }
         }
+
     }
 }
