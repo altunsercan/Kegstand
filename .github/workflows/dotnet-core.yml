@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Setup Core project library
-      run: cd ./Core/Runtime && dotnet new classlib
+      run: cd ./Core/Runtime && dotnet new classlib && dotnet add package Unity3D.UnityEngine --version 2018.3.5.1
     - name: Setup Core Tests project
       run: cd ./Core/Tests && dotnet new nunit && dotnet add package NSubstitute --version 4.2.2
     - name: Create solution
