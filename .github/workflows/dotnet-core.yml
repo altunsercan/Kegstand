@@ -1,0 +1,31 @@
+name: .NET Core
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Setup Core project library
+      run: cd ./Core/Runtime && dotnet new classlib && dotnet add package Unity3D.UnityEngine --version 2018.3.5.1
+    - name: Setup Core Tests project
+      run: cd ./Core/Tests && dotnet new nunit && dotnet add package NSubstitute --version 4.2.2 && dotnet add package NUnit3TestAdapter --version 3.17.0
+    - name: Create solution
+      run: dotnet new sln && dotnet sln add ./Core/Runtime/Runtime.csproj ./Core/Tests/Tests.csproj && dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
