@@ -11,9 +11,19 @@ namespace Kegstand
         public float MinAmount { get; private set; }
         public float Amount { get; private set; }
 
+        private bool isDirtyAggregateFlow = true;
+        private float cachedAggregateFlow;
         public float AggregateFlow
         {
-            get => flowCalculator.CalculateAggregateFlow(this);
+            get
+            {
+                if (isDirtyAggregateFlow)
+                {
+                    isDirtyAggregateFlow = false;
+                    cachedAggregateFlow = flowCalculator.CalculateAggregateFlow(this);
+                }
+                return cachedAggregateFlow;
+            }
         } //private set; }
 
         public IReadOnlyList<Tap> TapList { get; private set; }
@@ -59,6 +69,7 @@ namespace Kegstand
                 return;
             }
             tapList.Add(tap);
+            isDirtyAggregateFlow = true;
         }
 
         public void Update(float deltaTime)

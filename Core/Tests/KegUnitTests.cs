@@ -77,7 +77,24 @@ namespace Kegstand.Tests
             value = keg.AggregateFlow;
             
             // Then
-            calculator.Received(1).CalculateAggregateFlow(default);
+            calculator.Received(1).CalculateAggregateFlow(Arg.Any<Keg>());
+        }
+
+        [Test]
+        public void KegShouldDirtyAggregateFlowOnTapChange()
+        {
+            // Given
+            calculator = Substitute.For<FlowCalculator>();
+            calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(10f);
+            KegBase keg = new KegBase(calculator, 100f, 0f, 50f);
+            
+            // When
+            var value =keg.AggregateFlow;
+            keg.AddTap(Substitute.For<Tap>());
+            value = keg.AggregateFlow;
+            
+            // Then
+            calculator.Received(2).CalculateAggregateFlow(Arg.Any<Keg>());
         }
         
     }
