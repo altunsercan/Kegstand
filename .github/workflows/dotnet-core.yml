@@ -22,7 +22,7 @@ jobs:
     - name: Setup Core Tests project
       run: cd ./Core/Tests && dotnet new nunit && dotnet add package NSubstitute --version 4.2.2
     - name: Create solution
-      run: dotnet new sln && dotnet add Core/Runtime/Runtime.csproj && dotnet add Core/Tests/Tests.csproj && dotnet add Core/Tests/Tests.csproj reference Core/Runtime/Runtime.csproj
+      run: dotnet new sln && dotnet sln add ./Core/Runtime/Runtime.csproj ./Core/Tests/Tests.csproj && dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
     - name: Install dependencies
       run: dotnet restore
     - name: Build
