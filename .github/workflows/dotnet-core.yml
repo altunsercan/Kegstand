@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: Setup Core project
+    - name: Setup Core project library
       run: cd ./Core/Runtime && dotnet new classlib
     - name: Setup Core Tests project
       run: cd ./Core/Tests && dotnet new nunit && dotnet add package NSubstitute --version 4.2.2
