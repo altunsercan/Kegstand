@@ -8,9 +8,10 @@ on:
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    name: Build Code
+    runs-on: windows-latest
+    env: 
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -27,5 +28,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
+    - name: Cover Test
+      run: |
+        choco install opencover.portable
+        OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[Core*]* -[Tests*]*" -output:".\Core_coverage.xml" -oldstyle     
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1.0.12
