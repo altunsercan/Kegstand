@@ -34,5 +34,3 @@ jobs:
         OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[Core*]* -[Tests*]*" -output:".\Core_coverage.xml" -oldstyle     
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12
-      with:
-        file: ${{github.workspace}}/Core_coverage.xml
