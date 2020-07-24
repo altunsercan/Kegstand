@@ -11,12 +11,15 @@ namespace Kegstand.Tests
          * 
          * 
          */
-        
-        private FlowCalculator calculator;
+
+        private KegBase.Builder<KegBase> builder;
         [SetUp]
         public void Setup()
         {
-            calculator = new FlowCalculatorImpl();
+            var calculator = new FlowCalculatorImpl();
+
+            builder = new KegBase.Builder<KegBase>();
+            builder.WithCalculator(calculator);
         }
 
         [Test]
@@ -26,7 +29,7 @@ namespace Kegstand.Tests
         {
             // Given
             Tap tap = new TapBase(flowAmount);
-            KegBase keg = new KegBase(calculator, 100f, 0f, 50f);
+            KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             
             // When
@@ -43,7 +46,7 @@ namespace Kegstand.Tests
             // Given
             Tap tap = new TapBase();
             tap.SetFlow(1f);
-            KegBase keg = new KegBase(calculator, 100f, 0f, 50f);
+            KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             keg.AddTap(tap);
             

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Kegstand
 {
-    public class KegBase : Keg
+    public partial class KegBase : Keg
     {
-        private readonly FlowCalculator flowCalculator;
+        private FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
         public float MinAmount { get; private set; }
         public float Amount { get; private set; }
@@ -28,7 +28,14 @@ namespace Kegstand
 
         public IReadOnlyList<Tap> TapList { get; private set; }
         List<Tap> tapList;
+
+        public KegBase()
+        {
+            tapList = new List<Tap>();
+            TapList = tapList.AsReadOnly();
+        }
         
+        /*
         public KegBase(FlowCalculator flowCalculator, float maxAmount, float minAmount, float startingAmount)
         {
             this.flowCalculator = flowCalculator;
@@ -39,7 +46,7 @@ namespace Kegstand
 
             tapList = new List<Tap>();
             TapList = tapList.AsReadOnly();
-        }
+        }*/
 
 
         public void Increment(float delta)
@@ -84,6 +91,5 @@ namespace Kegstand
                 Decrement(-delta*deltaTime);
             }
         }
-
     }
 }

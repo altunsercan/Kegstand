@@ -6,11 +6,12 @@ namespace Kegstand.Tests
 {
     public class KegUnitTests
     {
-        private FlowCalculator calculator;
+        private KegBase.Builder<KegBase> kegBuilder; 
         [SetUp]
         public void Setup()
         {
-            calculator = new FlowCalculatorImpl();
+            var calculator = new FlowCalculatorImpl();
+            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator: calculator);
         }
         
         [Test]
@@ -20,7 +21,7 @@ namespace Kegstand.Tests
         public void CanIncrement(float maxAmount, float startingAmount, float increment, float result )
         {
             // Given
-            KegBase keg = new KegBase(calculator, maxAmount,0f, startingAmount );
+            KegBase keg = kegBuilder.Max(maxAmount).StartWith(startingAmount).Build();
 
             // When
             keg.Increment(increment);
@@ -33,7 +34,7 @@ namespace Kegstand.Tests
         public void CannotIncrementWithNegative()
         {
             // Given
-            KegBase keg = new KegBase( calculator, 100f,0f, 50f );
+            KegBase keg = kegBuilder.StartWith(50f).Build();
 
             // When & Then
             Assert.Throws<ArgumentException>(() => keg.Increment(-10f));
@@ -45,7 +46,7 @@ namespace Kegstand.Tests
         public void CanDecrementFluid(float minAmount, float startingAmount, float decrement, float result )
         {
             // Given
-            KegBase keg = new KegBase( calculator, 100f, minAmount, startingAmount );
+            KegBase keg = kegBuilder.Min(minAmount).StartWith(startingAmount).Build();
 
             // When
             keg.Decrement(decrement);
@@ -58,8 +59,8 @@ namespace Kegstand.Tests
         public void CannotDecrementWithNegative()
         {
             // Given
-            KegBase keg = new KegBase( calculator, 100f,0f, 50f );
-
+            KegBase keg = kegBuilder.StartWith(50f).Build(); 
+            
             // When & Then
             Assert.Throws<ArgumentException>(() => keg.Decrement(-10f));
         }
@@ -68,9 +69,9 @@ namespace Kegstand.Tests
         public void KegShouldMaintainTapFlowCache()
         {
             // Given
-            calculator = Substitute.For<FlowCalculator>();
+            var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(10f);
-            KegBase keg = new KegBase(calculator, 100f, 0f, 50f);
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
             
             // When
             var value =keg.AggregateFlow;
@@ -84,10 +85,10 @@ namespace Kegstand.Tests
         public void KegShouldDirtyAggregateFlowOnTapChange()
         {
             // Given
-            calculator = Substitute.For<FlowCalculator>();
+            var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(10f);
-            KegBase keg = new KegBase(calculator, 100f, 0f, 50f);
-            
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
+                
             // When
             var value =keg.AggregateFlow;
             keg.AddTap(Substitute.For<Tap>());
