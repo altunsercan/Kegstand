@@ -35,20 +35,6 @@ namespace Kegstand
             TapList = tapList.AsReadOnly();
         }
         
-        /*
-        public KegBase(FlowCalculator flowCalculator, float maxAmount, float minAmount, float startingAmount)
-        {
-            this.flowCalculator = flowCalculator;
-            
-            MaxAmount = maxAmount;
-            MinAmount = minAmount;
-            Amount = startingAmount;
-
-            tapList = new List<Tap>();
-            TapList = tapList.AsReadOnly();
-        }*/
-
-
         public void Increment(float delta)
         {
             if (delta < 0f)
