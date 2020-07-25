@@ -3,26 +3,47 @@ using UnityEngine;
 
 namespace Kegstand
 {
+    public enum KegEvent
+    {
+        Filled,
+        Emptied,
+    }
+    
     public class TimedEvent
     {
         public float Time { get; set; }
         public int Index { get; set; }
+        public KegEvent Type { get; set; }
     }
     
     public class Simulator
     {
-        
-        public IEnumerable<TimedEvent> Events { get; private set; }
+        public readonly IReadOnlyList<TimedEvent> Events;
+        public readonly IReadOnlyList<Stand> Stands;
+
         private readonly List<TimedEvent> events = new List<TimedEvent>();
+        private readonly List<Stand> stands = new List<Stand>();
+        
         public Simulator()
         {
-            Events = events;
+            Events = events.AsReadOnly();
+            Stands = stands.AsReadOnly();
         }
         
         public void AddEvent(float time, int index)
         {
             events.Add(new TimedEvent(){Time = time, Index = index});
             events.Sort((x,y)=>(x.Time == y.Time)?0:(x.Time>y.Time)?1:-1);
+        }
+
+        public void Register(Stand stand)
+        {
+            if (stands.Contains(stand))
+            {
+                return;
+            }
+            
+            stands.Add(stand);
         }
     }
 }

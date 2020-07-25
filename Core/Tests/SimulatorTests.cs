@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
@@ -20,7 +22,44 @@ namespace Kegstand.Tests
             }            
             
             // Then
-            Assert.That(simulator.Events, Is.Ordered.By("Time"));                
+            Assert.That(simulator.Events, Is.Ordered.Ascending.By("Time"));                
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        public void ShouldBeAbleToRegisterStands(int standCount)
+        {
+            // Given
+            Simulator simulator = new Simulator();
+            List<Stand> testList = new List<Stand>();
+            
+            // When
+            for (int i = 0; i < standCount; i++)
+            {
+                Stand stand = new Stand();
+                simulator.Register(stand);
+                testList.Add(stand);
+            }
+
+            // Then
+            Assert.AreNotEqual(0, simulator.Stands.Count());
+            Assert.That(testList, Is.EquivalentTo(simulator.Stands));
+        }
+
+
+        [Test]
+        public void ShouldNotRegisterSameStandMultipleTimes()
+        {
+            // Given
+            Simulator simulator = new Simulator();
+            
+            // When
+            Stand stand = new Stand();
+            simulator.Register(stand);
+            simulator.Register(stand);
+            
+            // Then
+            Assert.AreEqual(1, simulator.Stands.Count());
         }
     }
 }
