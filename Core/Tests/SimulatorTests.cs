@@ -36,7 +36,7 @@ namespace Kegstand.Tests
             // When
             for (int i = 0; i < standCount; i++)
             {
-                Stand stand = new Stand();
+                Stand stand = new Stand(new List<Stand.KegEntry>());
                 simulator.Register(stand);
                 testList.Add(stand);
             }
@@ -54,7 +54,7 @@ namespace Kegstand.Tests
             Simulator simulator = new Simulator();
             
             // When
-            Stand stand = new Stand();
+            Stand stand = new Stand(new List<Stand.KegEntry>());
             simulator.Register(stand);
             simulator.Register(stand);
             

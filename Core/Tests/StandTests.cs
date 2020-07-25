@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
@@ -17,14 +18,18 @@ namespace Kegstand.Tests
         public void ShouldRegisterKegsWithUniqueId()
         {
             // Given
-            Stand stand = new Stand();
             Keg keg = kegBuilder.Build();
             Keg keg2 = kegBuilder.Build();
             object uniqueObj = new object();
             object uniqueObj2 = new object();
+            List<Stand.KegEntry> kegEntries = new List<Stand.KegEntry>()
+            {
+                new Stand.KegEntry(uniqueObj, keg),
+                new Stand.KegEntry(uniqueObj2, keg2)
+            };
+                
             // When
-            stand.AddKeg(uniqueObj, keg);
-            stand.AddKeg(uniqueObj2, keg2);
+            Stand stand = new Stand(kegEntries);
 
             // Then
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
@@ -35,14 +40,18 @@ namespace Kegstand.Tests
         public void ShouldNotRegisterKegsWithoutUniqueId()
         {
             // Given
-            Stand stand = new Stand();
             Keg keg = kegBuilder.Build();
             Keg keg2 = kegBuilder.Build();
             object uniqueObj = new object();
+            List<Stand.KegEntry> kegEntries = new List<Stand.KegEntry>()
+            {
+                new Stand.KegEntry(uniqueObj, keg),
+                new Stand.KegEntry(uniqueObj, keg2)
+            };
+            
             // When
-            stand.AddKeg(uniqueObj, keg);
-            stand.AddKeg(uniqueObj, keg2);
-
+            Stand stand = new Stand(kegEntries);
+            
             // Then
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
             Assert.AreNotEqual(keg2, stand.GetKeg(uniqueObj));
