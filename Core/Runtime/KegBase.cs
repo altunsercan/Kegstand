@@ -55,6 +55,37 @@ namespace Kegstand
             Amount = Mathf.Max(Amount - delta, MinAmount);
         }
 
+        public int AppendCurrentEvents(List<TimedEvent> list)
+        {
+            TimedEvent timedEvent = null;
+            if (AggregateFlow > 0 && !Mathf.Approximately(Amount,MaxAmount))
+            {
+                float timeToFill = (MaxAmount - Amount) / AggregateFlow;
+                timedEvent = new TimedEvent()
+                {
+                    Index = 0,
+                    Time = timeToFill,
+                    Type = KegEvent.Filled
+                };    
+            }else if (AggregateFlow < 0 && !Mathf.Approximately(Amount, MinAmount))
+            {
+                float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
+                timedEvent = new TimedEvent()
+                {
+                    Index = 0,
+                    Time = timeToEmpty,
+                    Type = KegEvent.Emptied
+                };  
+            }
+
+            if (timedEvent != null)
+            {
+                list.Add(timedEvent);
+            }
+            
+            return list.Count;
+        }
+
         public void AddTap(Tap tap)
         {
             if (tapList.Contains(tap))

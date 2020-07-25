@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -97,6 +98,69 @@ namespace Kegstand.Tests
             // Then
             calculator.Received(2).CalculateAggregateFlow(Arg.Any<Keg>());
         }
-        
+
+        [Test]
+        public void KegShouldGenerateFillEventsForPositiveFlow()
+        {
+            // Given
+            var calculator = Substitute.For<FlowCalculator>();
+            calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(1f);
+
+            List<TimedEvent> list = new List<TimedEvent>(); 
+            
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
+            
+            // When
+            int eventCount = keg.AppendCurrentEvents(list);
+
+            // Then
+            Assert.Greater(eventCount, 0);
+            Assert.AreEqual(eventCount, list.Count);
+            Assert.That(list, Has.Some.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Filled));
+            Assert.That(list, Has.None.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Emptied));
+        }
+
+        [Test]
+        public void KegShouldGenerateEmptyEventsForNegativeFlow()
+        {
+            // Given
+            var calculator = Substitute.For<FlowCalculator>();
+            calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(-1f);
+
+            List<TimedEvent> list = new List<TimedEvent>(); 
+            
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(50f).Build();
+            
+            // When
+            int eventCount = keg.AppendCurrentEvents(list);
+
+            // Then
+            Assert.Greater(eventCount, 0);
+            Assert.AreEqual(eventCount, list.Count);
+            Assert.That(list, Has.Some.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Emptied));
+            Assert.That(list, Has.None.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Filled));
+        }
+
+
+        [TestCase(1f, 100f)]
+        [TestCase(-1f, 0f)]
+        [TestCase(0f, 50f)]
+        public void KegShouldNotGenerateFillEventAmountsAreAlreadyAtBoundary(float flow, float startingAmount)
+        {
+            // Given
+            var calculator = Substitute.For<FlowCalculator>();
+            calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(flow);
+
+            List<TimedEvent> list = new List<TimedEvent>(); 
+            
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(startingAmount).Build();
+            
+            // Whena
+            int eventCount = keg.AppendCurrentEvents(list);
+
+            // Then
+            Assert.AreEqual(0, eventCount);
+            Assert.AreEqual(eventCount, list.Count);
+        }
     }
 }

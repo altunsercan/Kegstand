@@ -11,5 +11,6 @@ namespace Kegstand
         IReadOnlyList<Tap> TapList { get; }
         void Increment(float delta);
         void Decrement(float decrement);
+        int AppendCurrentEvents(List<TimedEvent> list);
     }
 }
