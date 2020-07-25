@@ -5,7 +5,7 @@ namespace Kegstand.Tests
     public class StandTests
     {
         private KegBase.Builder<KegBase> kegBuilder;
-        private Stand.Builder standBuilder;
+        private StandBase.Builder standBuilder;
         
         [SetUp]
         public void Setup()
@@ -13,7 +13,7 @@ namespace Kegstand.Tests
             var calculator = new FlowCalculatorImpl();
             kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
             
-            standBuilder = new Stand.Builder();
+            standBuilder = new StandBase.Builder();
         }
         
         [Test]
@@ -54,6 +54,8 @@ namespace Kegstand.Tests
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
             Assert.AreNotEqual(keg2, stand.GetKeg(uniqueObj));
         }
+        
+        
         
     }
 }

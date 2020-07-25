@@ -1,11 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
     public class SimulatorTests
     {
+        private KegBase.Builder<KegBase> kegBuilder;
+        
+        [SetUp]
+        public void Setup()
+        {
+            var calculator = new FlowCalculatorImpl();
+            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
+        }
+        
         [Test]
         [TestCase(20,3,4,12,5,67)]
         [TestCase(20,-5,4,-2,5,23)]
@@ -36,7 +46,7 @@ namespace Kegstand.Tests
             // When
             for (int i = 0; i < standCount; i++)
             {
-                Stand stand = new Stand(new List<Stand.KegEntry>());
+                Stand stand = Substitute.For<Stand>();
                 simulator.Register(stand);
                 testList.Add(stand);
             }
@@ -54,7 +64,7 @@ namespace Kegstand.Tests
             Simulator simulator = new Simulator();
             
             // When
-            Stand stand = new Stand(new List<Stand.KegEntry>());
+            Stand stand = Substitute.For<Stand>();
             simulator.Register(stand);
             simulator.Register(stand);
             

@@ -4,29 +4,24 @@ using UnityEngine.Assertions;
 
 namespace Kegstand
 {
-    public partial class Stand
+    public interface Stand
     {
-        public struct KegEntry
-        {
-            public readonly object Key;
-            public readonly Keg Keg;
+        void RegisterKegEntries(List<KegEntry> kegEntries);
+        void AddKeg(object uniqueObj, Keg keg);
+        object GetKeg(object uniqueObj);
+    }
 
-            public KegEntry(object key, Keg keg)
-            {
-                Key = key;
-                Keg = keg;
-            }
-        }
-
+    public partial class StandBase : Stand
+    {
         private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
 
-        public Stand(List<KegEntry> kegEntries)
+        public StandBase(List<KegEntry> kegEntries)
         {
             Assert.IsNotNull(kegEntries);
             RegisterKegEntries(kegEntries);
         }
 
-        private void RegisterKegEntries(List<KegEntry> kegEntries)
+        public void RegisterKegEntries(List<KegEntry> kegEntries)
         {
             foreach (KegEntry entry in kegEntries)
             {
@@ -34,7 +29,7 @@ namespace Kegstand
             }
         }
 
-        private void AddKeg(object uniqueObj, Keg keg)
+        public void AddKeg(object uniqueObj, Keg keg)
         {
             if (kegs.ContainsKey(uniqueObj))
             {
@@ -48,6 +43,18 @@ namespace Kegstand
             Keg keg = null;
             kegs.TryGetValue(uniqueObj, out keg);
             return keg;
+        }
+    }
+
+    public struct KegEntry
+    {
+        public readonly object Key;
+        public readonly Keg Keg;
+
+        public KegEntry(object key, Keg keg)
+        {
+            Key = key;
+            Keg = keg;
         }
     }
 }

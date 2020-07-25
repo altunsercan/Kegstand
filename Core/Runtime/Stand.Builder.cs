@@ -2,7 +2,7 @@
 
 namespace Kegstand
 {
-    public partial class Stand
+    public partial class StandBase
     {
         public class Builder
         {
@@ -11,13 +11,13 @@ namespace Kegstand
 
             public Builder AddKeg(object uniqueId, Keg keg)
             {
-                kegEntries.Add(new Stand.KegEntry(uniqueId, keg));
+                kegEntries.Add(new KegEntry(uniqueId, keg));
                 return this;
             }
 
-            public Stand Build()
+            public StandBase Build()
             {
-                return new Stand(kegEntries);
+                return new StandBase(kegEntries);
             }
         }
     }
