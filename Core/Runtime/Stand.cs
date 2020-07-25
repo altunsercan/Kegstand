@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 namespace Kegstand
 {
-    public class Stand
+    public partial class Stand
     {
         public struct KegEntry
         {
@@ -18,7 +18,6 @@ namespace Kegstand
             }
         }
 
-        
         private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
 
         public Stand(List<KegEntry> kegEntries)

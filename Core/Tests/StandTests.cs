@@ -1,17 +1,19 @@
-﻿using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
     public class StandTests
     {
         private KegBase.Builder<KegBase> kegBuilder;
+        private Stand.Builder standBuilder;
         
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
             kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
+            
+            standBuilder = new Stand.Builder();
         }
         
         [Test]
@@ -22,14 +24,12 @@ namespace Kegstand.Tests
             Keg keg2 = kegBuilder.Build();
             object uniqueObj = new object();
             object uniqueObj2 = new object();
-            List<Stand.KegEntry> kegEntries = new List<Stand.KegEntry>()
-            {
-                new Stand.KegEntry(uniqueObj, keg),
-                new Stand.KegEntry(uniqueObj2, keg2)
-            };
+            
+            standBuilder.AddKeg(uniqueObj, keg);
+            standBuilder.AddKeg(uniqueObj2, keg2);
                 
             // When
-            Stand stand = new Stand(kegEntries);
+            Stand stand = standBuilder.Build();
 
             // Then
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
@@ -43,14 +43,12 @@ namespace Kegstand.Tests
             Keg keg = kegBuilder.Build();
             Keg keg2 = kegBuilder.Build();
             object uniqueObj = new object();
-            List<Stand.KegEntry> kegEntries = new List<Stand.KegEntry>()
-            {
-                new Stand.KegEntry(uniqueObj, keg),
-                new Stand.KegEntry(uniqueObj, keg2)
-            };
+            
+            standBuilder.AddKeg(uniqueObj, keg);
+            standBuilder.AddKeg(uniqueObj, keg2);
             
             // When
-            Stand stand = new Stand(kegEntries);
+            Stand stand = standBuilder.Build();
             
             // Then
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
