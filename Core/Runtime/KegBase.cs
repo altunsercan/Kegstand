@@ -13,6 +13,10 @@ namespace Kegstand
 
         private bool isDirtyAggregateFlow = true;
         private float cachedAggregateFlow;
+
+        private bool isDirtyCurrentEvents = true;
+        private List<TimedEvent> currentEvents = new List<TimedEvent>();
+        
         public float AggregateFlow
         {
             get
@@ -57,6 +61,19 @@ namespace Kegstand
 
         public int AppendCurrentEvents(List<TimedEvent> list)
         {
+            if (isDirtyCurrentEvents)
+            {
+                isDirtyCurrentEvents = false;
+                CreateCurrentEvents(currentEvents);
+            }
+            
+            list.AddRange(currentEvents);
+            return currentEvents.Count;
+        }
+
+        private void CreateCurrentEvents(List<TimedEvent> timedEvents)
+        {
+            timedEvents.Clear();
             TimedEvent timedEvent = null;
             if (AggregateFlow > 0 && !Mathf.Approximately(Amount,MaxAmount))
             {
@@ -80,10 +97,8 @@ namespace Kegstand
 
             if (timedEvent != null)
             {
-                list.Add(timedEvent);
+                timedEvents.Add(timedEvent);
             }
-            
-            return list.Count;
         }
 
         public void AddTap(Tap tap)
@@ -94,6 +109,7 @@ namespace Kegstand
             }
             tapList.Add(tap);
             isDirtyAggregateFlow = true;
+            isDirtyCurrentEvents = true;
         }
 
         public void Update(float deltaTime)
