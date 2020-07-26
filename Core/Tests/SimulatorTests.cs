@@ -106,5 +106,38 @@ namespace Kegstand.Tests
                 return new KegEntry(key, keg);
             }
         }
+
+        [Test]
+        public void ShouldInvokeEventsWithElapsedTimers()
+        {
+            // Given
+            Simulator simulator = new Simulator();
+            simulator.AddEvent(2f, 1);
+            simulator.AddEvent(5f, 2);
+            simulator.AddEvent(7f, 3);
+            
+            int total = 0;
+            simulator.EventTriggered += OnEventTriggered;
+
+            // When & Then
+
+            simulator.Update(1f);
+            Assert.AreEqual(0, total);
+            simulator.Update(1f);
+            Assert.AreEqual(1, total);
+            simulator.Update(4f);
+            Assert.AreEqual(2, total);
+            simulator.Update(0.5f);
+            Assert.AreEqual(2, total);
+            simulator.Update(4f);
+            Assert.AreEqual(3, total);
+            
+            Assert.AreEqual(0, simulator.Events.Count);
+
+            void OnEventTriggered(TimedEvent evt)
+            {
+                total++;
+            }
+        }
     }
 }

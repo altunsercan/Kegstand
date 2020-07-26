@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Kegstand
@@ -20,16 +21,20 @@ namespace Kegstand
     {
         public readonly IReadOnlyList<TimedEvent> Events;
         public readonly IReadOnlyList<Stand> Stands;
-
+        
         private readonly List<TimedEvent> events = new List<TimedEvent>();
         private readonly List<Stand> stands = new List<Stand>();
+        
+        public event Action<TimedEvent> EventTriggered;
+
+        private float clock = 0f;
         
         public Simulator()
         {
             Events = events.AsReadOnly();
             Stands = stands.AsReadOnly();
         }
-        
+
         public void AddEvent(float time, int index)
         {
             events.Add(new TimedEvent(){Time = time, Index = index});
@@ -56,6 +61,21 @@ namespace Kegstand
                 AddEvent(timedEvent.Time, timedEvent.Index);
             }
             
+        }
+
+        public void Update(float deltaTime)
+        {
+            clock += deltaTime;
+            var i = 0;
+            for (; i < events.Count; i++)
+            {
+                TimedEvent timedEvent = events[i];
+                if (timedEvent.Time > clock) { break; }
+                
+                EventTriggered?.Invoke(timedEvent);
+            }
+            
+            events.RemoveRange(0, i);
         }
     }
 }
