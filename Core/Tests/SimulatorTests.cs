@@ -27,8 +27,12 @@ namespace Kegstand.Tests
             // When
             for (var index = 0; index < eventTimes.Length; index++)
             {
-                float t = eventTimes[index];
-                simulator.AddEvent(t, index);
+                simulator.AddEvent(new TimedEvent()
+                {
+                    Index = Substitute.For<Keg>(),
+                    Time = eventTimes[index],
+                    Type = KegEvent.Filled
+                });
             }            
             
             // Then
@@ -99,7 +103,7 @@ namespace Kegstand.Tests
                         var list = callInfo.Arg<List<TimedEvent>>();
                         list.Add(new TimedEvent()
                         {
-                            Index = 0, Time = 1f, Type = KegEvent.Filled
+                            Index = keg, Time = 1f, Type = KegEvent.Filled
                         });
                         return 1;
                     });
@@ -112,10 +116,10 @@ namespace Kegstand.Tests
         {
             // Given
             Simulator simulator = new Simulator();
-            simulator.AddEvent(2f, 1);
-            simulator.AddEvent(5f, 2);
-            simulator.AddEvent(7f, 3);
-            
+            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 2f, Type = KegEvent.Filled });
+            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 5f, Type = KegEvent.Filled });
+            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 7f, Type = KegEvent.Filled });
+
             int total = 0;
             simulator.EventTriggered += OnEventTriggered;
 

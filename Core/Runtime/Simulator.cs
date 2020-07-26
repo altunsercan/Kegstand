@@ -21,10 +21,10 @@ namespace Kegstand
             Stands = stands.AsReadOnly();
         }
 
-        public void AddEvent(float time, int index)
+        public void AddEvent(TimedEvent timedEvent)
         {
-            events.Add(new TimedEvent(){Time = time, Index = index});
-            events.Sort((x,y)=>(x.Time == y.Time)?0:(x.Time>y.Time)?1:-1);
+            events.Add(timedEvent);
+            events.Sort(SortEventsByTimeComparison);
         }
 
         public void Register(Stand stand)
@@ -44,9 +44,9 @@ namespace Kegstand
 
             foreach (TimedEvent timedEvent in kegEvents)
             {
-                AddEvent(timedEvent.Time, timedEvent.Index);
+                events.Add(timedEvent);
             }
-            
+            events.Sort(SortEventsByTimeComparison);
         }
 
         public void Update(float deltaTime)
@@ -62,6 +62,11 @@ namespace Kegstand
             }
             
             events.RemoveRange(0, i);
+        }
+        
+        private static int SortEventsByTimeComparison(TimedEvent x, TimedEvent y)
+        {
+            return (x.Time == y.Time) ? 0 : (x.Time > y.Time) ? 1 : -1;
         }
     }
 }

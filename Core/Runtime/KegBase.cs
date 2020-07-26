@@ -80,7 +80,7 @@ namespace Kegstand
                 float timeToFill = (MaxAmount - Amount) / AggregateFlow;
                 timedEvent = new TimedEvent()
                 {
-                    Index = 0,
+                    Index = this,
                     Time = timeToFill,
                     Type = KegEvent.Filled
                 };    
@@ -89,7 +89,7 @@ namespace Kegstand
                 float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
                 timedEvent = new TimedEvent()
                 {
-                    Index = 0,
+                    Index = this,
                     Time = timeToEmpty,
                     Type = KegEvent.Emptied
                 };  
