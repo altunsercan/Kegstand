@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
@@ -34,6 +35,10 @@ namespace Kegstand.Tests
             // Then
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
             Assert.AreEqual(keg2, stand.GetKeg(uniqueObj2));
+            var kegs = stand.Kegs;
+            Assert.That(kegs, 
+                Has.Some.Matches<KegEntry>(entry=>entry.Key == uniqueObj)
+                    .And.Some.Matches<KegEntry>(entry=>entry.Key == uniqueObj2));
         }
         
         [Test]

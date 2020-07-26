@@ -71,5 +71,40 @@ namespace Kegstand.Tests
             // Then
             Assert.AreEqual(1, simulator.Stands.Count());
         }
+
+        [Test]
+        public void ShouldRegisterStandEvents()
+        {
+            // Given
+            Simulator simulator = new Simulator();
+            Stand stand = Substitute.For<Stand>();
+            stand.Kegs.Returns((_)=>new List<KegEntry>(){ MakeTestKeg() });
+            
+            // When
+            simulator.Register(stand);
+
+            // Then
+            var kegs = stand.Received(1).Kegs;
+            
+            Assert.AreEqual(1, simulator.Events.Count);
+
+
+            KegEntry MakeTestKeg()
+            {
+                var key = new object();
+                var keg = Substitute.For<Keg>();
+                keg.AppendCurrentEvents(Arg.Any<List<TimedEvent>>())
+                    .Returns((callInfo)=>
+                    {
+                        var list = callInfo.Arg<List<TimedEvent>>();
+                        list.Add(new TimedEvent()
+                        {
+                            Index = 0, Time = 1f, Type = KegEvent.Filled
+                        });
+                        return 1;
+                    });
+                return new KegEntry(key, keg);
+            }
+        }
     }
 }

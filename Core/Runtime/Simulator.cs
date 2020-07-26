@@ -42,8 +42,20 @@ namespace Kegstand
             {
                 return;
             }
-            
+         
+            List<TimedEvent> kegEvents = new List<TimedEvent>();
             stands.Add(stand);
+            var kegs = stand.Kegs;
+            foreach (KegEntry kegEntry in kegs)
+            {
+                kegEntry.Keg.AppendCurrentEvents(kegEvents);
+            }
+
+            foreach (TimedEvent timedEvent in kegEvents)
+            {
+                AddEvent(timedEvent.Time, timedEvent.Index);
+            }
+            
         }
     }
 }

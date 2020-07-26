@@ -6,36 +6,43 @@ namespace Kegstand
 {
     public interface Stand
     {
+        IReadOnlyList<KegEntry> Kegs { get; }
         void RegisterKegEntries(List<KegEntry> kegEntries);
-        void AddKeg(object uniqueObj, Keg keg);
+        void AddKeg(KegEntry kegEntry);
         object GetKeg(object uniqueObj);
     }
 
     public partial class StandBase : Stand
     {
         private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
-
+        private readonly List<KegEntry> kegEntries = new List<KegEntry>();
+        private readonly IReadOnlyList<KegEntry> readOnlyKegEntries;
+     
+        public IReadOnlyList<KegEntry> Kegs => readOnlyKegEntries;
+        
         public StandBase(List<KegEntry> kegEntries)
         {
             Assert.IsNotNull(kegEntries);
             RegisterKegEntries(kegEntries);
+            readOnlyKegEntries = kegEntries.AsReadOnly();
         }
 
         public void RegisterKegEntries(List<KegEntry> kegEntries)
         {
             foreach (KegEntry entry in kegEntries)
             {
-                AddKeg(entry.Key, entry.Keg);
+                AddKeg(entry);
             }
         }
 
-        public void AddKeg(object uniqueObj, Keg keg)
+        public void AddKeg(KegEntry kegEntry)
         {
-            if (kegs.ContainsKey(uniqueObj))
+            if (kegs.ContainsKey(kegEntry.Key))
             {
                 return;
             }
-            kegs.Add(uniqueObj, keg);
+            
+            kegs.Add(kegEntry.Key, kegEntry.Keg);
         }
 
         public object GetKeg(object uniqueObj)
@@ -44,6 +51,7 @@ namespace Kegstand
             kegs.TryGetValue(uniqueObj, out keg);
             return keg;
         }
+
     }
 
     public struct KegEntry
