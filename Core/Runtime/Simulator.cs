@@ -1,22 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Kegstand
 {
-    public enum KegEvent
-    {
-        Filled,
-        Emptied,
-    }
-    
-    public class TimedEvent
-    {
-        public float Time { get; set; }
-        public int Index { get; set; }
-        public KegEvent Type { get; set; }
-    }
-    
     public class Simulator
     {
         public readonly IReadOnlyList<TimedEvent> Events;
