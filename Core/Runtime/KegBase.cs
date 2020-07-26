@@ -4,8 +4,18 @@ using UnityEngine;
 
 namespace Kegstand
 {
+    public class KegEventsChangedArgs
+    {
+        public IReadOnlyList<TimedEvent> Changes { get; set; }
+    }
+    
+    
     public partial class KegBase : Keg
     {
+        public delegate void EventsChangedDelegate(Keg keg, KegEventsChangedArgs changes);
+
+        public event EventsChangedDelegate EventsChanged;
+        
         private FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
         public float MinAmount { get; private set; }
@@ -15,7 +25,7 @@ namespace Kegstand
         private float cachedAggregateFlow;
 
         private bool isDirtyCurrentEvents = true;
-        private List<TimedEvent> currentEvents = new List<TimedEvent>();
+        private List<TimedEvent> currentEvents = new List<TimedEvent>(); 
         
         public float AggregateFlow
         {
@@ -33,12 +43,13 @@ namespace Kegstand
         public IReadOnlyList<Tap> TapList { get; private set; }
         List<Tap> tapList;
 
+
         public KegBase()
         {
             tapList = new List<Tap>();
             TapList = tapList.AsReadOnly();
         }
-        
+
         public void Increment(float delta)
         {
             if (delta < 0f)
@@ -65,7 +76,13 @@ namespace Kegstand
             {
                 isDirtyCurrentEvents = false;
                 CreateCurrentEvents(currentEvents);
+
             }
+            
+            
+            var args = new KegEventsChangedArgs();
+            args.Changes = currentEvents.AsReadOnly();
+            EventsChanged?.Invoke(this, args) ;
             
             list.AddRange(currentEvents);
             return currentEvents.Count;
@@ -123,6 +140,13 @@ namespace Kegstand
             {
                 Decrement(-delta*deltaTime);
             }
+        }
+
+        [Obsolete("Created for testing should be refactored to remove")]
+        public void InvalidateFlowCache()
+        {
+            isDirtyAggregateFlow = true;
+            isDirtyCurrentEvents = true;
         }
     }
 }

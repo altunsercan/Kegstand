@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -155,12 +156,47 @@ namespace Kegstand.Tests
             
             KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(startingAmount).Build();
             
-            // Whena
+            // When
             int eventCount = keg.AppendCurrentEvents(list);
 
             // Then
             Assert.AreEqual(0, eventCount);
             Assert.AreEqual(eventCount, list.Count);
+        }
+
+        [Test]
+        public void KegShouldAnnounceKegEventsChanged()
+        {
+            // Given
+            var flow = 1;
+            KegEventsChangedArgs kegEventsChangedArgs = null;
+            
+            var calculator = Substitute.For<FlowCalculator>();
+            calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns((_)=>flow);
+            
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(0f).Build();
+
+            // When
+            var events = new List<TimedEvent>();
+            keg.AppendCurrentEvents(events);
+            float previousTime = events.Where(evt => evt.Type == KegEvent.Filled)
+                .Select(evt=>evt.Time).FirstOrDefault();
+            
+            keg.EventsChanged += OnEventsChanged;
+            
+            flow = 2;
+            keg.InvalidateFlowCache();
+            var newEvents = new List<TimedEvent>();
+            keg.AppendCurrentEvents(newEvents);
+            float changedTime = kegEventsChangedArgs.Changes.First(evt => evt.Type == KegEvent.Filled).Time;
+
+            // Then
+            Assert.AreEqual(previousTime/2f, changedTime);            
+            
+            void OnEventsChanged(Keg _keg, KegEventsChangedArgs args)
+            {
+                kegEventsChangedArgs = args;
+            }
         }
     }
 }
