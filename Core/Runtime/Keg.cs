@@ -5,6 +5,7 @@ namespace Kegstand
 {
     public interface Keg
     {
+        event KegEventsChangedDelegate EventsChanged;
         float MaxAmount { get; }
         float MinAmount { get; }
         float Amount { get; }

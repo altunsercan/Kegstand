@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
@@ -6,6 +7,7 @@ namespace Kegstand
 {
     public interface Stand
     {
+        event KegEventsChangedDelegate EventsChanged;
         IReadOnlyList<KegEntry> Kegs { get; }
         void RegisterKegEntries(List<KegEntry> kegEntries);
         void AddKeg(KegEntry kegEntry);
@@ -19,6 +21,8 @@ namespace Kegstand
         private readonly IReadOnlyList<KegEntry> readOnlyKegEntries;
      
         public IReadOnlyList<KegEntry> Kegs => readOnlyKegEntries;
+        
+        public event KegEventsChangedDelegate EventsChanged;
         
         public StandBase(List<KegEntry> kegEntries)
         {
@@ -37,12 +41,20 @@ namespace Kegstand
 
         public void AddKeg(KegEntry kegEntry)
         {
-            if (kegs.ContainsKey(kegEntry.Key))
+            object key = kegEntry.Key;
+            if (kegs.ContainsKey(key))
             {
                 return;
             }
-            
-            kegs.Add(kegEntry.Key, kegEntry.Keg);
+
+            Keg keg = kegEntry.Keg;
+            kegs.Add(key, keg);
+            keg.EventsChanged += DispatchKegEventChanged;
+        }
+
+        private void DispatchKegEventChanged(KegEventsChangedArgs changesArgs)
+        {
+            EventsChanged?.Invoke(changesArgs);
         }
 
         public object GetKeg(object uniqueObj)
@@ -51,7 +63,6 @@ namespace Kegstand
             kegs.TryGetValue(uniqueObj, out keg);
             return keg;
         }
-
     }
 
     public struct KegEntry

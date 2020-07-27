@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
+using NSubstitute.Core;
+using NSubstitute.Routing.AutoValues;
 using NUnit.Framework;
 
 namespace Kegstand.Tests
@@ -142,6 +144,33 @@ namespace Kegstand.Tests
             {
                 total++;
             }
+        }
+
+        [Test]
+        public void ShouldRescheduleEventsOnKegEventChange()
+        {
+            // Given
+            Simulator simulator = new Simulator();
+            Stand stand = Substitute.For<Stand>();
+            
+            
+            simulator.Register(stand);
+            
+            // When
+            var changeList = new List<TimedEvent>();
+            var fakeEvent = Substitute.ForPartsOf<TimedEvent>();
+            fakeEvent.Time = 2124125f;
+            changeList.Add(fakeEvent);
+            
+            var eventsChangedArgs = new KegEventsChangedArgs();
+            eventsChangedArgs.Changes = changeList;
+
+            stand.EventsChanged += Raise.Event<KegEventsChangedDelegate>(eventsChangedArgs);
+
+            // Then
+            Assert.AreEqual(2124125f, simulator.Events
+                .Where(evt=> evt.Type==KegEvent.Filled)
+                .Select(evt=> evt.Time).First());
         }
     }
 }

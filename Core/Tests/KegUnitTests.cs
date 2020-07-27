@@ -193,7 +193,7 @@ namespace Kegstand.Tests
             // Then
             Assert.AreEqual(previousTime/2f, changedTime);            
             
-            void OnEventsChanged(Keg _keg, KegEventsChangedArgs args)
+            void OnEventsChanged(KegEventsChangedArgs args)
             {
                 kegEventsChangedArgs = args;
             }

@@ -6,15 +6,16 @@ namespace Kegstand
 {
     public class KegEventsChangedArgs
     {
+        public Keg Keg { get; set; }
         public IReadOnlyList<TimedEvent> Changes { get; set; }
     }
     
+    public delegate void KegEventsChangedDelegate(KegEventsChangedArgs changes);
     
+
     public partial class KegBase : Keg
     {
-        public delegate void EventsChangedDelegate(Keg keg, KegEventsChangedArgs changes);
-
-        public event EventsChangedDelegate EventsChanged;
+        public event KegEventsChangedDelegate EventsChanged;
         
         private FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
@@ -81,8 +82,9 @@ namespace Kegstand
             
             
             var args = new KegEventsChangedArgs();
+            args.Keg = this;
             args.Changes = currentEvents.AsReadOnly();
-            EventsChanged?.Invoke(this, args) ;
+            EventsChanged?.Invoke(args) ;
             
             list.AddRange(currentEvents);
             return currentEvents.Count;
