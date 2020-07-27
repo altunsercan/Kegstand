@@ -77,7 +77,6 @@ namespace Kegstand
             {
                 isDirtyCurrentEvents = false;
                 CreateCurrentEvents(currentEvents);
-
             }
             
             
@@ -93,31 +92,46 @@ namespace Kegstand
         private void CreateCurrentEvents(List<TimedEvent> timedEvents)
         {
             timedEvents.Clear();
-            TimedEvent timedEvent = null;
-            if (AggregateFlow > 0 && !Mathf.Approximately(Amount,MaxAmount))
+            TimedEvent timedEvent;
+            if(CreateFillEvent(out timedEvent))
             {
-                float timeToFill = (MaxAmount - Amount) / AggregateFlow;
-                timedEvent = new TimedEvent()
-                {
-                    Index = this,
-                    Time = timeToFill,
-                    Type = KegEvent.Filled
-                };    
-            }else if (AggregateFlow < 0 && !Mathf.Approximately(Amount, MinAmount))
-            {
-                float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
-                timedEvent = new TimedEvent()
-                {
-                    Index = this,
-                    Time = timeToEmpty,
-                    Type = KegEvent.Emptied
-                };  
+                timedEvents.Add(timedEvent);
+                
             }
-
-            if (timedEvent != null)
+            if (CreateEmptyEvent(out timedEvent))
             {
                 timedEvents.Add(timedEvent);
             }
+        }
+
+        private bool CreateEmptyEvent(out TimedEvent timedEvent)
+        {
+            timedEvent = null;
+            if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
+            float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
+            timedEvent = new TimedEvent()
+            {
+                Index = this,
+                Time = timeToEmpty,
+                Type = KegEvent.Emptied
+            };
+            return true;
+
+        }
+
+        private bool CreateFillEvent(out TimedEvent timedEvent)
+        {
+            timedEvent = null;
+            if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
+            
+            float timeToFill = (MaxAmount - Amount) / AggregateFlow;
+            timedEvent = new TimedEvent()
+            {
+                Index = this,
+                Time = timeToFill,
+                Type = KegEvent.Filled
+            };
+            return true;
         }
 
         public void AddTap(Tap tap)
