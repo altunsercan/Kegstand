@@ -32,5 +32,9 @@ jobs:
       run: |
         choco install opencover.portable
         OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[Core*]* -[Tests*]*" -output:".\Core_coverage.xml" -oldstyle     
+    - uses: actions/upload-artifact@2
+      with:
+        name: Core-Coverage
+        path: Core_coverage.xml
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12
