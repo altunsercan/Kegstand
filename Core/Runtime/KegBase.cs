@@ -4,15 +4,30 @@ using UnityEngine;
 
 namespace Kegstand
 {
-    public class KegBase : Keg
+    public class KegEventsChangedArgs
     {
-        private readonly FlowCalculator flowCalculator;
+        public Keg Keg { get; set; }
+        public IReadOnlyList<TimedEvent> Changes { get; set; }
+    }
+    
+    public delegate void KegEventsChangedDelegate(KegEventsChangedArgs changes);
+    
+
+    public partial class KegBase : Keg
+    {
+        public event KegEventsChangedDelegate EventsChanged;
+        
+        private FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
         public float MinAmount { get; private set; }
         public float Amount { get; private set; }
 
         private bool isDirtyAggregateFlow = true;
         private float cachedAggregateFlow;
+
+        private bool isDirtyCurrentEvents = true;
+        private List<TimedEvent> currentEvents = new List<TimedEvent>(); 
+        
         public float AggregateFlow
         {
             get
@@ -28,19 +43,13 @@ namespace Kegstand
 
         public IReadOnlyList<Tap> TapList { get; private set; }
         List<Tap> tapList;
-        
-        public KegBase(FlowCalculator flowCalculator, float maxAmount, float minAmount, float startingAmount)
-        {
-            this.flowCalculator = flowCalculator;
-            
-            MaxAmount = maxAmount;
-            MinAmount = minAmount;
-            Amount = startingAmount;
 
+
+        public KegBase()
+        {
             tapList = new List<Tap>();
             TapList = tapList.AsReadOnly();
         }
-
 
         public void Increment(float delta)
         {
@@ -62,6 +71,69 @@ namespace Kegstand
             Amount = Mathf.Max(Amount - delta, MinAmount);
         }
 
+        public int AppendCurrentEvents(List<TimedEvent> list)
+        {
+            if (isDirtyCurrentEvents)
+            {
+                isDirtyCurrentEvents = false;
+                CreateCurrentEvents(currentEvents);
+            }
+            
+            
+            var args = new KegEventsChangedArgs();
+            args.Keg = this;
+            args.Changes = currentEvents.AsReadOnly();
+            EventsChanged?.Invoke(args) ;
+            
+            list.AddRange(currentEvents);
+            return currentEvents.Count;
+        }
+
+        private void CreateCurrentEvents(List<TimedEvent> timedEvents)
+        {
+            timedEvents.Clear();
+            TimedEvent timedEvent;
+            if(CreateFillEvent(out timedEvent))
+            {
+                timedEvents.Add(timedEvent);
+                
+            }
+            if (CreateEmptyEvent(out timedEvent))
+            {
+                timedEvents.Add(timedEvent);
+            }
+        }
+
+        private bool CreateEmptyEvent(out TimedEvent timedEvent)
+        {
+            timedEvent = null;
+            if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
+            float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
+            timedEvent = new TimedEvent()
+            {
+                Index = this,
+                Time = timeToEmpty,
+                Type = KegEvent.Emptied
+            };
+            return true;
+
+        }
+
+        private bool CreateFillEvent(out TimedEvent timedEvent)
+        {
+            timedEvent = null;
+            if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
+            
+            float timeToFill = (MaxAmount - Amount) / AggregateFlow;
+            timedEvent = new TimedEvent()
+            {
+                Index = this,
+                Time = timeToFill,
+                Type = KegEvent.Filled
+            };
+            return true;
+        }
+
         public void AddTap(Tap tap)
         {
             if (tapList.Contains(tap))
@@ -70,6 +142,7 @@ namespace Kegstand
             }
             tapList.Add(tap);
             isDirtyAggregateFlow = true;
+            isDirtyCurrentEvents = true;
         }
 
         public void Update(float deltaTime)
@@ -85,5 +158,11 @@ namespace Kegstand
             }
         }
 
+        [Obsolete("Created for testing should be refactored to remove")]
+        public void InvalidateFlowCache()
+        {
+            isDirtyAggregateFlow = true;
+            isDirtyCurrentEvents = true;
+        }
     }
 }
