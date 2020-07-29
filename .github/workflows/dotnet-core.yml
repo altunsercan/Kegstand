@@ -27,22 +27,6 @@ jobs:
         dotnet sln add ./Core/Runtime/Runtime.csproj
         dotnet restore
         dotnet build --configuration Release --no-restore
-    - name: Cache Coverage Tools
-      id: cacheDotCover
-      uses: actions/cache@v2
-      with:
-        path: |
-          dotCover
-        key: ${{ runner.os }}-DotCover
-    - name: Install Coverage Tools
-      if: steps.cacheDotCover.outputs.cache-hit != 'true'
-      run: |
-        mkdir dotCover
-        cd dotCover
-        wget https://download.jetbrains.com/resharper/ReSharperUltimate.2020.1.4/JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz -o JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
-    - run: |
-        cd dotCover
-        tar xvf JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
     - name: Test
       run: |
         cd ./Core/Tests
@@ -52,8 +36,8 @@ jobs:
         cd ../..
         dotnet sln add ./Core/Tests/Tests.csproj
         dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
+        dotnet tool install JetBrains.dotCover.DotNetCliTool --version 2020.1.4
         dotnet restore
-        dotnet test -r ../../test_results/core/ --logger "trx"  
-        ./dotCover/dotCover.exe dotnet --output=Core_Coverage.xml --reportType=XML -- test
+        dotnet dotcover test --dcReportType=XML
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
