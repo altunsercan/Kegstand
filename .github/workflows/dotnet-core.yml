@@ -40,5 +40,10 @@ jobs:
     - uses: dodopizza/dotcover-action@v1
       with:
         dotCoverCommand: dotnet --ReportType=XML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Core Coverage
+        path: ./Coverage/Core_coverage.xml
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
