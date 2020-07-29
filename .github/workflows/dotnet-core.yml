@@ -36,8 +36,10 @@ jobs:
         cd ../..
         dotnet sln add ./Core/Tests/Tests.csproj
         dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
+        dotnet restore
+        dotnet build --configuration Debug --no-restore
     - uses: dodopizza/dotcover-action@v1
       with:
-        dotCoverCommand: cover --ReportType=XML
+        dotCoverCommand: cover --ReportType=XML --TargetExecutable="./Core/Tests/bin/Debug/netcoreapp2.1/Tests.dll"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
