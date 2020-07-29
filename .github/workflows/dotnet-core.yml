@@ -39,7 +39,7 @@ jobs:
       run: |
         mkdir dotCover
         cd dotCover
-        curl https://download.jetbrains.com/resharper/ReSharperUltimate.2020.1.4/JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz -o JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
+        wget https://download.jetbrains.com/resharper/ReSharperUltimate.2020.1.4/JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz -o JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
     - run: |
         cd dotCover
         tar xvf JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
