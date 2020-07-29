@@ -39,6 +39,6 @@ jobs:
         dotnet restore
     - uses: dodopizza/dotcover-action@v1
       with:
-        dotCoverCommand: dotnet --ReportType=XML -- test "./Core/Tests/Tests.csproj" --Output="./Coverage/Core_coverage.xml"
+        dotCoverCommand: dotnet --ReportType=XML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
