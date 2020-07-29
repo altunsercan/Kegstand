@@ -36,6 +36,7 @@ jobs:
         cd ../..
         dotnet sln add ./Core/Tests/Tests.csproj
         dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
+        dotnet new tool-manifest
         dotnet tool install JetBrains.dotCover.DotNetCliTool --version 2020.1.4
         dotnet restore
         dotnet dotcover test --dcReportType=XML
