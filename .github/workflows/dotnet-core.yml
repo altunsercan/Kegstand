@@ -40,6 +40,6 @@ jobs:
         dotnet build --configuration Debug --no-restore --output ./TestBuild
     - uses: dodopizza/dotcover-action@v1
       with:
-        dotCoverCommand: cover --ReportType=XML --TargetExecutable="./TestBuild/Tests.dll"
+        dotCoverCommand: cover --ReportType=XML --TargetExecutable="./TestBuild/Tests.dll" --Output="./Coverage/Core_coverage.xml"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
