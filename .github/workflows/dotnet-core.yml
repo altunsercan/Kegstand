@@ -1,4 +1,4 @@
-name: .NET Core
+name: Develop Branch Workflow
 
 on:
   push:
@@ -9,28 +9,41 @@ on:
 jobs:
   build:
     name: Build Code
-    runs-on: windows-latest
-    env: 
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup .Net
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: Setup Core project library
-      run: cd ./Core/Runtime && dotnet new classlib && dotnet add package Unity3D.UnityEngine --version 2018.3.5.1
-    - name: Setup Core Tests project
-      run: cd ./Core/Tests && dotnet new nunit && dotnet add package NSubstitute --version 4.2.2 && dotnet add package NUnit3TestAdapter --version 3.17.0
-    - name: Create solution
-      run: dotnet new sln && dotnet sln add ./Core/Runtime/Runtime.csproj ./Core/Tests/Tests.csproj && dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
-    - name: Install dependencies
-      run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
-    - name: Cover Test
       run: |
-        choco install opencover.portable
-        OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -filter:"+[Core*]* -[Tests*]*" -output:".\Core_coverage.xml" -oldstyle     
+        dotnet new sln
+        cd ./Core/Runtime
+        dotnet new classlib
+        dotnet add package Unity3D.UnityEngine --version 2018.3.5.1
+        cd ../..
+        dotnet sln add ./Core/Runtime/Runtime.csproj
+        dotnet restore
+        dotnet build --configuration Release --no-restore
+    - name: Test
+      run: |
+        cd ./Core/Tests
+        dotnet new nunit
+        dotnet add package NSubstitute --version 4.2.2
+        dotnet add package NUnit3TestAdapter --version 3.17.0
+        cd ../..
+        dotnet sln add ./Core/Tests/Tests.csproj
+        dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
+        dotnet restore
+    - uses: dodopizza/dotcover-action@v1
+      with:
+        dotCoverCommand: dotnet --ReportType=XML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Core Coverage
+        path: ./Coverage/Core_coverage.xml
     - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1.0.12
+      uses: codecov/codecov-action@v1.0.12 
