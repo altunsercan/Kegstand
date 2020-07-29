@@ -11,9 +11,10 @@ jobs:
     name: Build Code
     runs-on: linux-latest
     steps:
-    - name: Setup
-    - uses: actions/checkout@v2
-    - uses: actions/setup-dotnet@v1
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Setup .Net
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
     - name: Build
@@ -26,14 +27,15 @@ jobs:
         dotnet sln add ./Core/Runtime/Runtime.csproj
         dotnet restore
         dotnet build --configuration Release --no-restore
-    - name: Install Coverage Tools
+    - name: Cache Coverage Tools
       id: cacheDotCover
       uses: actions/cache@v2
       with:
         path: |
           dotCover
         key: ${{ runner.os }}-DotCover
-    - if: steps.cacheDotCover.outputs.cache-hit != 'true'
+    - name: Install Coverage Tools
+      if: steps.cacheDotCover.outputs.cache-hit != 'true'
       run: |
         mkdir dotCover
         cd dotCover
