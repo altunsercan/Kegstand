@@ -39,7 +39,8 @@ jobs:
       run: |
         mkdir dotCover
         cd dotCover
-        curl https://download.jetbrains.com/resharper/ReSharperUltimate.2020.1.4/JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz -o ./JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz && tar xvf ./JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
+        curl --silent --show-error --fail https://download.jetbrains.com/resharper/ReSharperUltimate.2020.1.4/JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz -o ./JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
+        tar xvf ./JetBrains.dotCover.CommandLineTools.linux-x64.2020.1.4.tar.gz
     - name: Test
       run: |
         cd ./Core/Tests
