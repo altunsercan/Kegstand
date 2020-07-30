@@ -33,10 +33,10 @@ jobs:
         dotnet new nunit
         dotnet add package NSubstitute --version 4.2.2
         dotnet add package NUnit3TestAdapter --version 3.17.0
+        dotnet add package coverlet.msbuild
         cd ../..
         dotnet sln add ./Core/Tests/Tests.csproj
         dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
-        dotnet add package coverlet.msbuild
         dotnet restore
         dotnet test /p:CollectCoverage=true /p:CoverletOutput=Coverage/ /p:CoverletOutputFormat=lcov
     - name: Upload a Build Artifact
