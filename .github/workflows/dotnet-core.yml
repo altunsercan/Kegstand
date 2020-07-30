@@ -43,6 +43,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Core Coverage
-        path: ./Coverage
+        path: ./Core/Tests/Coverage/coverage.info
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
