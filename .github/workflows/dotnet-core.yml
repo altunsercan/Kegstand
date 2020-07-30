@@ -33,17 +33,16 @@ jobs:
         dotnet new nunit
         dotnet add package NSubstitute --version 4.2.2
         dotnet add package NUnit3TestAdapter --version 3.17.0
+        dotnet add package coverlet.msbuild
         cd ../..
         dotnet sln add ./Core/Tests/Tests.csproj
         dotnet add ./Core/Tests/Tests.csproj reference ./Core/Runtime/Runtime.csproj
         dotnet restore
-    - uses: dodopizza/dotcover-action@v1
-      with:
-        dotCoverCommand: dotnet --ReportType=XML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
+        dotnet test /p:CollectCoverage=true /p:CoverletOutput=Coverage/ /p:CoverletOutputFormat=lcov
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
         name: Core Coverage
-        path: ./Coverage/Core_coverage.xml
+        path: ./Core/Tests/Coverage/coverage.info
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1.0.12 
