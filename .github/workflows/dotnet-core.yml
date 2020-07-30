@@ -39,7 +39,7 @@ jobs:
         dotnet restore
     - uses: dodopizza/dotcover-action@v1
       with:
-        dotCoverCommand: dotnet --ReportType=XML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
+        dotCoverCommand: dotnet --ReportType=NDependXML --Output="./Coverage/Core_coverage.xml" -- test "./Core/Tests/Tests.csproj"
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2
       with:
