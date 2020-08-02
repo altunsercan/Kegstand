@@ -8,6 +8,15 @@
         "net.tnrd.nsubstitute": "https://github.com/Thundernerd/Unity3D-NSubstitute.git"
       }
     },
+    "com.sercanaltun.kegstand.unity": {
+      "version": "file:../../Unity",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.sercanaltun.kegstand": "0.1.0",
+        "net.tnrd.nsubstitute": "https://github.com/Thundernerd/Unity3D-NSubstitute.git"
+      }
+    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,

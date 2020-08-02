@@ -1,0 +1,13 @@
+{
+    "name": "com.sercanaltun.kegstand.unity",
+    "displayName": "Kegstand Unity",
+    "version": "0.1.0",
+    "unity": "2019.3",
+    "description": "Unity components for Kegstand: Descrete Event Simulation system for Unity3d games.",
+    "keywords": ["Descrete Event Simulation", "simulation"],
+    "category": "Scripting",
+    "dependencies": {
+        "com.sercanaltun.kegstand": "0.1.0",
+        "net.tnrd.nsubstitute": "https://github.com/Thundernerd/Unity3D-NSubstitute.git"
+    }
+}
