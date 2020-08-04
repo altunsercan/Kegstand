@@ -11,7 +11,7 @@ namespace Kegstand
         IReadOnlyList<KegEntry> Kegs { get; }
         void RegisterKegEntries(List<KegEntry> kegEntries);
         void AddKeg(KegEntry kegEntry);
-        object GetKeg(object uniqueObj);
+        Keg GetKeg(object uniqueObj);
     }
 
     public partial class StandBase : Stand
@@ -57,7 +57,7 @@ namespace Kegstand
             EventsChanged?.Invoke(changesArgs);
         }
 
-        public object GetKeg(object uniqueObj)
+        public Keg GetKeg(object uniqueObj)
         {
             Keg keg = null;
             kegs.TryGetValue(uniqueObj, out keg);
