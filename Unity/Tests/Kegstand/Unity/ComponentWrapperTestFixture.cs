@@ -128,12 +128,8 @@ namespace Kegstand.Unity
                 return Substitute.For(new Type[]{type}, emptyParams);
             }
         }
-    
-        
     }
 
-    public class KegstandSimulatorComponentWrapperTests : ComponentWrapperTestFixture<KegComponent, Keg>
-    {
-        
-    }
+    public class KegComponentWrapperTests : ComponentWrapperTestFixture<KegComponent, Keg>{}
+    public class StandComponentWrapperTests : ComponentWrapperTestFixture<StandComponent, Stand>{}
 }
