@@ -4,7 +4,7 @@ namespace Kegstand
 {
     public partial class StandBase
     {
-        public class Builder
+        public class Builder 
         {
             private List<KegEntry> kegEntries = new List<KegEntry>();
             public Builder() { }
@@ -15,7 +15,7 @@ namespace Kegstand
                 return this;
             }
 
-            public StandBase Build()
+            public Stand Build()
             {
                 return new StandBase(kegEntries);
             }

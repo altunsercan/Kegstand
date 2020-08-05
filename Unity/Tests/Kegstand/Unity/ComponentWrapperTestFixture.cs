@@ -131,5 +131,4 @@ namespace Kegstand.Unity
     }
 
     public class KegComponentWrapperTests : ComponentWrapperTestFixture<KegComponent, Keg>{}
-    public class StandComponentWrapperTests : ComponentWrapperTestFixture<StandComponent, Stand>{}
 }
