@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -30,6 +31,29 @@ namespace Kegstand.Unity
         {
             GameObject kegGameObj = new GameObject(name);
             return kegGameObj.AddComponent<KegComponent>();
+        }
+        
+        private void MakeNestedStand(int nestLevel, params int[] standInLevel)
+        {
+            GameObject currentNest = new GameObject();
+            int currentNestLevel = 0;
+            while (currentNestLevel<=nestLevel)
+            {
+                currentNestLevel++;
+                GameObject tempGobj = null;
+                if (standInLevel.Contains(currentNestLevel))
+                {
+                    var standObj = MakeStandObject();
+                    tempGobj = standObj.gameObject;
+                }
+                else
+                {
+                    tempGobj = new GameObject();
+                }
+                    
+                tempGobj.transform.SetParent(currentNest.transform);
+                currentNest = tempGobj;
+            }
         }
 
         [UnityTearDown]
@@ -72,11 +96,16 @@ namespace Kegstand.Unity
             MakeSimulator();
             simulationComp.AutoRegisterComponentsInScene = true;
 
+            var scene = SceneManager.GetActiveScene();
+            
             StandComponent stand = MakeStandObject();
+            MakeNestedStand(3, 1, 3);
+            MakeNestedStand(5, 5);
             
             yield return new EnterPlayMode();
             
-            Assert.AreEqual( 1, simulationComp.Stands.Count);
+            Assert.AreEqual( 4, simulationComp.Stands.Count);
         }
+
     }
 }
