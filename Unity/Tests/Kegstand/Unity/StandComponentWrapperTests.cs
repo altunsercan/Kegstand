@@ -27,7 +27,7 @@ namespace Kegstand.Unity
         }
         
         [UnityTest]
-        public IEnumerable ShouldAssociateWithKegComponentsInSiblings()
+        public IEnumerator ShouldAssociateWithKegComponentsInSiblings()
         {
             GameObject gameObj = new GameObject();
 
