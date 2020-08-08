@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,13 +9,9 @@ namespace Kegstand.Unity
 {
     public class StandComponentWrapperTests : ComponentWrapperTestFixture<StandComponent, Stand>
     {
-        private KegstandSimulationComponent simulationComp;
-        
         [UnityTearDown]
         public IEnumerator TearDown()
         {
-            simulationComp = null;
-            
             var sceneObjects = SceneManager.GetActiveScene().GetRootGameObjects();
             for (var index = sceneObjects.Length - 1; index >= 1; index--) // Don't destroy first object which is test runner
             {
@@ -30,7 +27,7 @@ namespace Kegstand.Unity
         public IEnumerator ShouldAssociateWithKegComponentsInSiblings()
         {
             GameObject gameObj = new GameObject();
-
+            
             StandComponent standComp = gameObj.AddComponent<StandComponent>();
             standComp.AutoAddSiblingComponents = true;
             
@@ -40,9 +37,13 @@ namespace Kegstand.Unity
             KegComponent keg2Comp = gameObj.AddComponent<KegComponent>();
             keg2Comp.Id = "keg2";
 
-            yield return new EnterPlayMode();
+            var stand = Substitute.For<Stand>();
+            standComp.SetWrappedObject(stand);
             
-            Assert.That( standComp.Kegs, Has.Member(keg1Comp).And.Member(keg2Comp));
+            stand.Received().AddKeg(Arg.Is<KegEntry>(entry=>entry.Keg == keg1Comp && entry.Key == keg1Comp.Id));
+            stand.Received().AddKeg(Arg.Is<KegEntry>(entry=>entry.Keg == keg2Comp && entry.Key == keg2Comp.Id));
+
+            yield return null;
         }
 
     }
