@@ -7,6 +7,7 @@ namespace Kegstand
         public class Builder 
         {
             private List<KegEntry> kegEntries = new List<KegEntry>();
+            private List<TapEntry> tapEntries = new List<TapEntry>();
             public Builder() { }
 
             public Builder AddKeg(object uniqueId, Keg keg)
@@ -14,10 +15,16 @@ namespace Kegstand
                 kegEntries.Add(new KegEntry(uniqueId, keg));
                 return this;
             }
-
+            
+            public Builder AddTap(object uniqueId, Tap tap)
+            {
+                tapEntries.Add(new TapEntry(uniqueId, tap));
+                return this;
+            }
+            
             public Stand Build()
             {
-                return new StandBase(kegEntries);
+                return new StandBase(kegEntries, tapEntries);
             }
         }
     }

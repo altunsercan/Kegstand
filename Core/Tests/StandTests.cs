@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace Kegstand.Tests
@@ -7,7 +9,7 @@ namespace Kegstand.Tests
     {
         private KegBase.Builder<KegBase> kegBuilder;
         private StandBase.Builder standBuilder;
-        
+
         [SetUp]
         public void Setup()
         {
@@ -59,7 +61,30 @@ namespace Kegstand.Tests
             Assert.AreEqual(keg, stand.GetKeg(uniqueObj));
             Assert.AreNotEqual(keg2, stand.GetKeg(uniqueObj));
         }
-        
+
+        [Test]
+        public void ShouldRegisterTapsWithUniqueId()
+        {
+            // Given
+            Tap tap = Substitute.For<Tap>();
+            Tap tap2 = Substitute.For<Tap>();
+            object uniqueObj = new object();
+            object uniqueObj2 = new object();
+
+            standBuilder.AddTap(uniqueObj, tap);
+            standBuilder.AddTap(uniqueObj2, tap2);
+            
+            // When
+            Stand stand = standBuilder.Build();
+            IReadOnlyList<TapEntry> taps = stand.Taps;
+            
+            // Then
+            Assert.AreEqual(tap, stand.GetTap(uniqueObj));
+            Assert.AreEqual(tap2, stand.GetTap(uniqueObj2));
+            Assert.That(taps, 
+                Has.Some.Matches<TapEntry>(entry=>entry.Key == uniqueObj)
+                    .And.Some.Matches<TapEntry>(entry=>entry.Key == uniqueObj2));
+        }
         
         
     }

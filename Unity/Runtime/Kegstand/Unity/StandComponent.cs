@@ -40,7 +40,6 @@ namespace Kegstand.Unity
             nonAllocComponentList.Clear();
         }
 
-
         #region Wrapper Implementation
         public event KegEventsChangedDelegate EventsChanged
         {
@@ -48,9 +47,15 @@ namespace Kegstand.Unity
             remove => wrappedStand.EventsChanged -= value;
         }
         public IReadOnlyList<KegEntry> Kegs => wrappedStand.Kegs;
+        public IReadOnlyList<TapEntry> Taps => wrappedStand.Taps;
+
         public void RegisterKegEntries(List<KegEntry> kegEntries) => wrappedStand.RegisterKegEntries(kegEntries);
+        public void RegisterTapEntries(List<TapEntry> tapEntries) => wrappedStand.RegisterTapEntries(tapEntries);
+
         public void AddKeg(KegEntry kegEntry) => wrappedStand.AddKeg(kegEntry);
         public Keg GetKeg(object uniqueObj) => wrappedStand.GetKeg(uniqueObj);
+        public Tap GetTap(object uniqueObj) => wrappedStand.GetTap(uniqueObj);
+
         #endregion Wrapper Implementation
     }
 }
