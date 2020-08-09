@@ -24,7 +24,7 @@ namespace Kegstand.Unity
         }
         
         [UnityTest]
-        public IEnumerator ShouldAssociateWithKegComponentsInSiblings()
+        public IEnumerator ShouldCreateStandDefinitionFromComponentsInSiblings()
         {
             GameObject gameObj = new GameObject();
             
@@ -36,13 +36,13 @@ namespace Kegstand.Unity
             
             KegComponent keg2Comp = gameObj.AddComponent<KegComponent>();
             keg2Comp.Id = "keg2";
-
-            var stand = Substitute.For<Stand>();
-            standComp.SetWrappedObject(stand);
             
-            stand.Received().AddKeg(Arg.Is<KegEntry>(entry=>entry.Keg == keg1Comp && entry.Key == keg1Comp.Id));
-            stand.Received().AddKeg(Arg.Is<KegEntry>(entry=>entry.Keg == keg2Comp && entry.Key == keg2Comp.Id));
-
+            var definition = standComp.GetStandDefinition();
+            
+            Assert.That(definition.Kegs,
+                Has.Some.Matches<KegEntry>(entry=>entry.Keg == keg1Comp && entry.Key == keg1Comp.Id)
+                .And.Some.Matches<KegEntry>(entry=>entry.Keg == keg2Comp && entry.Key == keg2Comp.Id));
+            
             yield return null;
         }
 

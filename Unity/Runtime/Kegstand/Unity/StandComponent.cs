@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Kegstand.Unity
 {
-    public class StandComponent : MonoBehaviour, Stand, IWrapperComponent<Stand>
+    public class StandComponent : MonoBehaviour, Stand, IWrapperComponent<Stand>, IStandDefinitionProvider
     {
         [NotNull]
         private readonly List<Component> nonAllocComponentList = new List<Component>();
@@ -12,22 +12,24 @@ namespace Kegstand.Unity
         [SerializeField] public bool AutoAddSiblingComponents;
         
         private Stand wrappedStand;
+        
         public void SetWrappedObject(Stand wrappedObject)
         {
             wrappedStand = wrappedObject;
-
-            Initialize();
         }
-
-        private void Initialize()
+        
+        public StandDefinition GetStandDefinition()
         {
+            var definition = new StandDefinition();
             if (AutoAddSiblingComponents)
             {
-                DiscoverAndAddSiblingKegComponents();
+                DiscoverAndAddSiblingKegComponents(definition);
             }
+            
+            return definition;
         }
 
-        private void DiscoverAndAddSiblingKegComponents()
+        private void DiscoverAndAddSiblingKegComponents(StandDefinition definition)
         {
             GetComponents(typeof(KegComponent), nonAllocComponentList);
             foreach (Component component in nonAllocComponentList)
@@ -35,7 +37,7 @@ namespace Kegstand.Unity
                 if (!(component is KegComponent kegComponent)) continue;
                 
                 var entry = new KegEntry(kegComponent.Id, kegComponent);
-                AddKeg(entry);
+                definition.Kegs.Add(entry);
             }
             nonAllocComponentList.Clear();
         }
@@ -49,10 +51,6 @@ namespace Kegstand.Unity
         public IReadOnlyList<KegEntry> Kegs => wrappedStand.Kegs;
         public IReadOnlyList<TapEntry> Taps => wrappedStand.Taps;
 
-        public void RegisterKegEntries(List<KegEntry> kegEntries) => wrappedStand.RegisterKegEntries(kegEntries);
-        public void RegisterTapEntries(List<TapEntry> tapEntries) => wrappedStand.RegisterTapEntries(tapEntries);
-
-        public void AddKeg(KegEntry kegEntry) => wrappedStand.AddKeg(kegEntry);
         public Keg GetKeg(object uniqueObj) => wrappedStand.GetKeg(uniqueObj);
         public Tap GetTap(object uniqueObj) => wrappedStand.GetTap(uniqueObj);
 

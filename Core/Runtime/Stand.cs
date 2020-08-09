@@ -10,9 +10,6 @@ namespace Kegstand
         event KegEventsChangedDelegate EventsChanged;
         IReadOnlyList<KegEntry> Kegs { get; }
         IReadOnlyList<TapEntry> Taps { get; }
-        void RegisterKegEntries(List<KegEntry> kegEntries);
-        void RegisterTapEntries(List<TapEntry> tapEntries);
-        void AddKeg(KegEntry kegEntry);
         Keg GetKeg(object uniqueObj);
         Tap GetTap(object uniqueObj);
     }
@@ -44,19 +41,19 @@ namespace Kegstand
             readOnlyTapEntries = tapEntries.AsReadOnly();
         }
 
-        public void RegisterKegEntries(List<KegEntry> kegEntries)
+        private void RegisterKegEntries(List<KegEntry> kegEntriesToRegister)
         {
-            foreach (KegEntry entry in kegEntries)
+            foreach (KegEntry entry in kegEntriesToRegister)
                 AddKeg(entry);
         }
 
-        public void RegisterTapEntries(List<TapEntry> tapEntries)
+        private void RegisterTapEntries(List<TapEntry> tapEntriesToRegister)
         {
-            foreach (TapEntry tapEntry in tapEntries)
+            foreach (TapEntry tapEntry in tapEntriesToRegister)
                 AddTap(tapEntry);
         }
 
-        public void AddKeg(KegEntry kegEntry)
+        private void AddKeg(KegEntry kegEntry)
         {
             object key = kegEntry.Key;
             if (kegs.ContainsKey(key))
