@@ -27,12 +27,13 @@ namespace Kegstand.Unity
             return standGameObj.AddComponent<StandComponent>();
         }
 
-        private KegComponent MakeKegObject(string name = "Keg")
+        private KegComponent MakeKegObject(StandComponent standComponent, string name = "Keg")
         {
-            GameObject kegGameObj = new GameObject(name);
-            return kegGameObj.AddComponent<KegComponent>();
+            var keg = standComponent.gameObject.AddComponent<KegComponent>();
+            keg.Id = name;
+            return keg;
         }
-        
+
         private void MakeNestedStand(int nestLevel, params int[] standInLevel)
         {
             GameObject currentNest = new GameObject();
@@ -106,6 +107,5 @@ namespace Kegstand.Unity
             
             Assert.AreEqual( 4, simulationComp.Stands.Count);
         }
-
     }
 }

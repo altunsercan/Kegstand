@@ -37,7 +37,7 @@ namespace Kegstand.Unity
             KegComponent keg2Comp = gameObj.AddComponent<KegComponent>();
             keg2Comp.Id = "keg2";
             
-            var definition = standComp.GetStandDefinition();
+            var definition = ((IStandDefinitionProvider)standComp).GetStandDefinition();
             
             Assert.That(definition.Kegs,
                 Has.Some.Matches<KegEntry>(entry=>entry.Keg == keg1Comp && entry.Key == keg1Comp.Id)

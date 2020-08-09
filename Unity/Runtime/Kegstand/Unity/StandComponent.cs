@@ -18,7 +18,7 @@ namespace Kegstand.Unity
             wrappedStand = wrappedObject;
         }
         
-        public StandDefinition GetStandDefinition()
+        StandDefinition IStandDefinitionProvider.GetStandDefinition()
         {
             var definition = new StandDefinition();
             if (AutoAddSiblingComponents)

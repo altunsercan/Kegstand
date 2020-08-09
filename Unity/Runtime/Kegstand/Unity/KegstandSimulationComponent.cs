@@ -59,12 +59,16 @@ namespace Kegstand.Unity
         private void AddStandFromGameObjectIfExists(Transform gObj)
         {
             if (!(gObj.GetComponent<Stand>() is Stand stand)) return;
-            
-            
+
             if (stand is IWrapperComponent<Stand> standWrapper)
             {
                 var standBuilder = new StandBase.Builder();
-                var pureStand = standBuilder.Build();
+                if ( stand is IStandDefinitionProvider provider)
+                {
+                    standBuilder.CopyDefinition( provider.GetStandDefinition() );
+                }
+                
+                Stand pureStand = standBuilder.Build();
                 standWrapper.SetWrappedObject(pureStand);      
             }
                 
