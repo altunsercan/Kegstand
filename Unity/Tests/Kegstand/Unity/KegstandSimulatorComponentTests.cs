@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -93,10 +94,13 @@ namespace Kegstand.Unity
         public IEnumerator ShouldAutoDiscoverExistingComponentsInScene()
         {
             yield return null;
+
+            var standDefBuilder = Substitute.For<IStandDefinitionBuilder>();
             
             MakeSimulator();
             simulationComp.AutoRegisterComponentsInScene = true;
-
+            simulationComp.Initialize(standDefBuilder);
+            
             var scene = SceneManager.GetActiveScene();
             
             StandComponent stand = MakeStandObject();
@@ -106,6 +110,30 @@ namespace Kegstand.Unity
             yield return new EnterPlayMode();
             
             Assert.AreEqual( 4, simulationComp.Stands.Count);
+            standDefBuilder.Received(4)
+                .BuildWrappers(Arg.Any<IWrapperComponent<Stand>>(), Arg.Any<IStandDefinitionProvider>());
         }
+
+        [UnityTest]
+        public IEnumerator StandDefinitionBuilderTest()
+        {
+            // Given
+            yield return null;
+            IStandDefinitionBuilder defBuilder = new StandDefinitionBuilder();
+            
+            StandComponent stand = MakeStandObject();
+            stand.AutoAddSiblingComponents = true;
+            MakeKegObject(stand, "keg1");
+            MakeKegObject(stand, "keg2");
+
+            // When
+            var pureStand = defBuilder.BuildWrappers(standWrapper: stand, provider: stand);
+            
+            // Then
+            Assert.AreEqual(2, pureStand.Kegs.Count);
+            Assert.NotNull(pureStand.Kegs[0].Keg.TapList);
+            Assert.NotNull(pureStand.Kegs[1].Keg.TapList);
+        }
+        
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Kegstand.Unity
 {
@@ -11,13 +9,28 @@ namespace Kegstand.Unity
         public Simulator Simulator { get; private set; }
         public IReadOnlyList<Stand> Stands => Simulator.Stands;
 
+        private bool initialized = false;
+        private IStandDefinitionBuilder standDefBuilder;
+        
         public void Awake()
         {
             Simulator = new Simulator();
         }
 
+        public void Initialize(IStandDefinitionBuilder builder = null)
+        {
+            initialized = true;
+            
+            standDefBuilder = builder ?? new StandDefinitionBuilder();
+        }
+
         private void Start()
         {
+            if (!initialized)
+            {
+                Initialize();
+            }
+            
             if (AutoRegisterComponentsInScene)
             {
                 FindExistingKegstandComponentsInScene();
@@ -62,13 +75,17 @@ namespace Kegstand.Unity
 
             if (stand is IWrapperComponent<Stand> standWrapper)
             {
-                var standBuilder = new StandBase.Builder();
+                Stand pureStand = null;
                 if ( stand is IStandDefinitionProvider provider)
                 {
-                    standBuilder.CopyDefinition( provider.GetStandDefinition() );
+                    pureStand = standDefBuilder.BuildWrappers(standWrapper, provider);
+                }
+                else
+                {
+                    var standBuilder = new StandBase.Builder();
+                    pureStand = standBuilder.Build();
                 }
                 
-                Stand pureStand = standBuilder.Build();
                 standWrapper.SetWrappedObject(pureStand);      
             }
                 
