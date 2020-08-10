@@ -24,6 +24,7 @@ namespace Kegstand.Unity
             if (AutoAddSiblingComponents)
             {
                 DiscoverAndAddSiblingKegComponents(definition);
+                DiscoverAndAddSiblingTapComponents(definition);
             }
             
             return definition;
@@ -38,6 +39,19 @@ namespace Kegstand.Unity
                 
                 var entry = new KegEntry(kegComponent.Id, kegComponent);
                 definition.Kegs.Add(entry);
+            }
+            nonAllocComponentList.Clear();
+        }
+
+        private void DiscoverAndAddSiblingTapComponents(StandDefinition definition)
+        {
+            GetComponents(typeof(TapComponent), nonAllocComponentList);
+            foreach (Component component in nonAllocComponentList)
+            {
+                if (!(component is TapComponent tapComponent)) continue;
+                
+                var entry = new TapEntry(tapComponent.Id, tapComponent);
+                definition.Taps.Add(entry);
             }
             nonAllocComponentList.Clear();
         }

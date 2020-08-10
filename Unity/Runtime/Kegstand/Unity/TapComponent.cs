@@ -5,6 +5,8 @@ namespace Kegstand.Unity
     public class TapComponent : MonoBehaviour, Tap, IWrapperComponent<Tap>
     {
         private Tap wrappedTap;
+        
+        [SerializeField] public string Id;
         public void SetWrappedObject(Tap wrappedObject) => wrappedTap = wrappedObject;
 
         #region Wrapper Implementation
