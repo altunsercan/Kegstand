@@ -23,12 +23,23 @@
                 if (keg is IWrapperComponent<Keg> kegWrapper)
                 {
                     var kegBuilder = new KegBase.Builder<KegBase>();
+                    // TODO Initialize keg
                     KegBase pureKeg = kegBuilder.Build();
                     kegWrapper.SetWrappedObject(pureKeg);
                 }
             }
-            
-            
+
+            foreach (TapEntry tapEntry in definition.Taps)
+            {
+                var tap = tapEntry.Tap;
+                if (tap is IWrapperComponent<Tap> tapWrapper)
+                {
+                    var pureTap = new TapBase();
+                    // TODO initialize tap
+                    tapWrapper.SetWrappedObject(pureTap);
+                }
+            }
+
             var standBuilder = new StandBase.Builder();
             standBuilder.CopyDefinition( definition );
             return standBuilder.Build();

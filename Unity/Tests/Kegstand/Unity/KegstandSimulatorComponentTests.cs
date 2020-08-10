@@ -28,11 +28,19 @@ namespace Kegstand.Unity
             return standGameObj.AddComponent<StandComponent>();
         }
 
-        private KegComponent MakeKegObject(StandComponent standComponent, string name = "Keg")
+        private KegComponent MakeKeg(StandComponent standComponent, string name = "Keg")
         {
             var keg = standComponent.gameObject.AddComponent<KegComponent>();
             keg.Id = name;
             return keg;
+        }
+        
+        
+        private TapComponent MakeTap(StandComponent standComponent, string name = "Tap")
+        {
+            var tap = standComponent.gameObject.AddComponent<TapComponent>();
+            tap.Id = name;
+            return tap;
         }
 
         private void MakeNestedStand(int nestLevel, params int[] standInLevel)
@@ -123,8 +131,10 @@ namespace Kegstand.Unity
             
             StandComponent stand = MakeStandObject();
             stand.AutoAddSiblingComponents = true;
-            MakeKegObject(stand, "keg1");
-            MakeKegObject(stand, "keg2");
+            MakeKeg(stand, "keg1");
+            MakeKeg(stand, "keg2");
+            MakeTap(stand, "tap1");
+            MakeTap(stand, "tap2");
 
             // When
             var pureStand = defBuilder.BuildWrappers(standWrapper: stand, provider: stand);
@@ -133,7 +143,11 @@ namespace Kegstand.Unity
             Assert.AreEqual(2, pureStand.Kegs.Count);
             Assert.NotNull(pureStand.Kegs[0].Keg.TapList);
             Assert.NotNull(pureStand.Kegs[1].Keg.TapList);
+            
+            Assert.AreEqual(2, pureStand.Taps.Count);
+            Assert.DoesNotThrow(()=> { var flow = pureStand.Taps[0].Tap.FlowAmount; });
+            Assert.DoesNotThrow(()=> { var flow = pureStand.Taps[1].Tap.FlowAmount; });
         }
-        
+
     }
 }
