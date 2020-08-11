@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Kegstand;
+﻿using Kegstand;
 using Kegstand.Unity;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,6 +13,24 @@ public class KegValueBar : MonoBehaviour
     private Keg keg;
     
     public void Start()
+    {
+        if (stand.IsInitialized)
+        {
+            InitializeKegBar();
+        }
+        else
+        {
+            stand.Initialized += OnDelayedInitialized;
+        }
+    }
+
+    private void OnDelayedInitialized(StandComponent standComponent)
+    {
+        standComponent.Initialized -= OnDelayedInitialized;
+        InitializeKegBar();
+    }
+
+    private void InitializeKegBar()
     {
         keg = stand.GetKeg(id);
 

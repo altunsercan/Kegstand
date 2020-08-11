@@ -6,18 +6,26 @@ namespace Kegstand.Unity
 {
     public class StandComponent : MonoBehaviour, Stand, IWrapperComponent<Stand>, IStandDefinitionProvider
     {
+        public delegate void InitialalizedHandler(StandComponent stand);
+        
         [NotNull]
         private readonly List<Component> nonAllocComponentList = new List<Component>();
         
         [SerializeField] public bool AutoAddSiblingComponents;
-        
+
         private Stand wrappedStand;
-        
+        public event InitialalizedHandler Initialized;
+        public bool IsInitialized { get; private set; }
+
+
         public void SetWrappedObject(Stand wrappedObject)
         {
             wrappedStand = wrappedObject;
+
+            IsInitialized = true;
+            Initialized?.Invoke(this);
         }
-        
+
         StandDefinition IStandDefinitionProvider.GetStandDefinition()
         {
             var definition = new StandDefinition();
@@ -57,11 +65,13 @@ namespace Kegstand.Unity
         }
 
         #region Wrapper Implementation
+
         public event KegEventsChangedDelegate EventsChanged
         {
             add => wrappedStand.EventsChanged += value;
             remove => wrappedStand.EventsChanged -= value;
         }
+
         public IReadOnlyList<KegEntry> Kegs => wrappedStand.Kegs;
         public IReadOnlyList<TapEntry> Taps => wrappedStand.Taps;
 
