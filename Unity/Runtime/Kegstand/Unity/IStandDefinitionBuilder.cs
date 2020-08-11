@@ -7,9 +7,11 @@
 
     public class StandDefinitionBuilder : IStandDefinitionBuilder
     {
-        public StandDefinitionBuilder()
+        private readonly FlowCalculator flowCalculator;
+
+        public StandDefinitionBuilder(FlowCalculator flowCalculator)
         {
-            
+            this.flowCalculator = flowCalculator;
         }
         
         public Stand BuildWrappers(IWrapperComponent<Stand> standWrapper, IStandDefinitionProvider provider)
@@ -24,6 +26,7 @@
                 {
                     var kegBuilder = new KegBase.Builder<KegBase>();
                     // TODO Initialize keg
+                    kegBuilder.WithCalculator(flowCalculator);
                     KegBase pureKeg = kegBuilder.Build();
                     kegWrapper.SetWrappedObject(pureKeg);
                 }

@@ -20,8 +20,8 @@ namespace Kegstand.Unity
         public void Initialize(IStandDefinitionBuilder builder = null)
         {
             initialized = true;
-            
-            standDefBuilder = builder ?? new StandDefinitionBuilder();
+
+            standDefBuilder = builder ?? new StandDefinitionBuilder(new FlowCalculatorImpl());
         }
 
         private void Start()
