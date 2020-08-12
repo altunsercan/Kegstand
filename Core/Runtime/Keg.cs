@@ -14,5 +14,6 @@ namespace Kegstand
         void Increment(float delta);
         void Decrement(float decrement);
         int AppendCurrentEvents(List<TimedEvent> list);
+        void AddTap(Tap tap);
     }
 }

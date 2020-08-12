@@ -9,9 +9,9 @@ namespace Kegstand
     {
         event KegEventsChangedDelegate EventsChanged;
         IReadOnlyList<KegEntry> Kegs { get; }
-        void RegisterKegEntries(List<KegEntry> kegEntries);
-        void AddKeg(KegEntry kegEntry);
-        object GetKeg(object uniqueObj);
+        IReadOnlyList<TapEntry> Taps { get; }
+        Keg GetKeg(object uniqueObj);
+        Tap GetTap(object uniqueObj);
     }
 
     public partial class StandBase : Stand
@@ -19,27 +19,41 @@ namespace Kegstand
         private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
         private readonly List<KegEntry> kegEntries = new List<KegEntry>();
         private readonly IReadOnlyList<KegEntry> readOnlyKegEntries;
-     
         public IReadOnlyList<KegEntry> Kegs => readOnlyKegEntries;
         
+        
+        private readonly Dictionary<object, Tap> taps = new Dictionary<object, Tap>();
+        private readonly List<TapEntry> tapEntries = new List<TapEntry>();
+        private readonly IReadOnlyList<TapEntry> readOnlyTapEntries;
+        public IReadOnlyList<TapEntry> Taps => readOnlyTapEntries;
+
         public event KegEventsChangedDelegate EventsChanged;
         
-        public StandBase(List<KegEntry> kegEntries)
+        public StandBase(List<KegEntry> kegEntries, List<TapEntry> tapEntries)
         {
             Assert.IsNotNull(kegEntries);
+            Assert.IsNotNull(tapEntries);
+            
             RegisterKegEntries(kegEntries);
             readOnlyKegEntries = kegEntries.AsReadOnly();
+            
+            RegisterTapEntries(tapEntries);
+            readOnlyTapEntries = tapEntries.AsReadOnly();
         }
 
-        public void RegisterKegEntries(List<KegEntry> kegEntries)
+        private void RegisterKegEntries(List<KegEntry> kegEntriesToRegister)
         {
-            foreach (KegEntry entry in kegEntries)
-            {
+            foreach (KegEntry entry in kegEntriesToRegister)
                 AddKeg(entry);
-            }
         }
 
-        public void AddKeg(KegEntry kegEntry)
+        private void RegisterTapEntries(List<TapEntry> tapEntriesToRegister)
+        {
+            foreach (TapEntry tapEntry in tapEntriesToRegister)
+                AddTap(tapEntry);
+        }
+
+        private void AddKeg(KegEntry kegEntry)
         {
             object key = kegEntry.Key;
             if (kegs.ContainsKey(key))
@@ -52,20 +66,39 @@ namespace Kegstand
             keg.EventsChanged += DispatchKegEventChanged;
         }
 
+        private void AddTap(in TapEntry tapEntry)
+        {
+            object key = tapEntry.Key;
+            if (taps.ContainsKey(key))
+            {
+                return;
+            }
+
+            Tap tap = tapEntry.Tap;
+            taps.Add(key, tap);
+        }
+
         private void DispatchKegEventChanged(KegEventsChangedArgs changesArgs)
         {
             EventsChanged?.Invoke(changesArgs);
         }
 
-        public object GetKeg(object uniqueObj)
+        public Keg GetKeg(object uniqueObj)
         {
             Keg keg = null;
             kegs.TryGetValue(uniqueObj, out keg);
             return keg;
         }
+
+        public Tap GetTap(object uniqueObj)
+        {
+            Tap tap = null;
+            taps.TryGetValue(uniqueObj, out tap);
+            return tap;
+        }
     }
 
-    public struct KegEntry
+    public readonly struct KegEntry
     {
         public readonly object Key;
         public readonly Keg Keg;
@@ -74,6 +107,18 @@ namespace Kegstand
         {
             Key = key;
             Keg = keg;
+        }
+    }
+    
+    public readonly struct TapEntry
+    {
+        public readonly object Key;
+        public readonly Tap Tap;
+
+        public TapEntry(object key, Tap tap)
+        {
+            Key = key;
+            Tap = tap;
         }
     }
 }
