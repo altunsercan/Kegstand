@@ -448,6 +448,7 @@ GameObject:
   - component: {fileID: 1084039578}
   - component: {fileID: 1084039577}
   - component: {fileID: 1084039576}
+  - component: {fileID: 1084039581}
   m_Layer: 5
   m_Name: Plant
   m_TagString: Untagged
@@ -503,6 +504,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: rot
+  maxAmount: 100
+  minAmount: 0
+  amount: 0
 --- !u!114 &1084039577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,6 +520,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: water
+  maxAmount: 100
+  minAmount: 0
+  amount: 100
 --- !u!114 &1084039578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -529,6 +536,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Id: growth
+  maxAmount: 100
+  minAmount: 0
+  amount: 0
 --- !u!114 &1084039579
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -565,6 +575,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1084039573}
   m_CullTransparentMesh: 0
+--- !u!114 &1084039581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1084039573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d0ac43787264b10b1b24a510eac8605, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Id: water_drain
+  ConnectedKegs:
+  - {fileID: 1084039577}
+  flowAmount: -1
 --- !u!1 &1139994835
 GameObject:
   m_ObjectHideFlags: 0
