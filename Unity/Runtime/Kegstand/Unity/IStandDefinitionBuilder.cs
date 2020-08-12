@@ -1,4 +1,6 @@
-﻿namespace Kegstand.Unity
+﻿using System.Collections.Generic;
+
+namespace Kegstand.Unity
 {
     public interface IStandDefinitionBuilder
     {
@@ -23,24 +25,18 @@
                 return null;
             }
 
-            foreach (KegEntry kegEntry in definition.Kegs)
-            {
-                var keg = kegEntry.Keg;
-
-                if (keg is IWrapperComponent<Keg> kegWrapper)
-                {
-                    var kegBuilder = new KegBase.Builder<KegBase>();
-                    // TODO Initialize keg
-                    kegBuilder.Max(keg.MaxAmount);
-                    kegBuilder.Min(keg.MinAmount);
-                    kegBuilder.StartWith(keg.Amount);
-                    kegBuilder.WithCalculator(flowCalculator);
-                    KegBase pureKeg = kegBuilder.Build();
-                    kegWrapper.SetWrappedObject(pureKeg);
-                }
-            }
+            BuildKegWrappers(definition.Kegs);
             
-            foreach (TapEntry tapEntry in definition.Taps)
+            BuildTapWrappers(definition.Taps);
+
+            var standBuilder = new StandBase.Builder();
+            standBuilder.CopyDefinition( definition );
+            return standBuilder.Build();
+        }
+
+        private static void BuildTapWrappers(List<TapEntry> tapList)
+        {
+            foreach (TapEntry tapEntry in tapList)
             {
                 var tap = tapEntry.Tap;
                 if (tap is IWrapperComponent<Tap> tapWrapper)
@@ -58,10 +54,26 @@
                     }
                 }
             }
+        }
 
-            var standBuilder = new StandBase.Builder();
-            standBuilder.CopyDefinition( definition );
-            return standBuilder.Build();
+        private void BuildKegWrappers(List<KegEntry> kegList)
+        {
+            foreach (KegEntry kegEntry in kegList)
+            {
+                var keg = kegEntry.Keg;
+
+                if (keg is IWrapperComponent<Keg> kegWrapper)
+                {
+                    var kegBuilder = new KegBase.Builder<KegBase>();
+                    // TODO Initialize keg
+                    kegBuilder.Max(keg.MaxAmount);
+                    kegBuilder.Min(keg.MinAmount);
+                    kegBuilder.StartWith(keg.Amount);
+                    kegBuilder.WithCalculator(flowCalculator);
+                    KegBase pureKeg = kegBuilder.Build();
+                    kegWrapper.SetWrappedObject(pureKeg);
+                }
+            }
         }
     }
 }
