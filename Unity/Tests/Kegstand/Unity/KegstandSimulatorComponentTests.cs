@@ -127,7 +127,7 @@ namespace Kegstand.Unity
         {
             // Given
             yield return null;
-            IStandDefinitionBuilder defBuilder = new StandDefinitionBuilder();
+            IStandDefinitionBuilder defBuilder = new StandDefinitionBuilder(null);
             
             StandComponent stand = MakeStandObject();
             stand.AutoAddSiblingComponents = true;

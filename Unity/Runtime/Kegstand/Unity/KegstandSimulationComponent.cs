@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Kegstand.Unity
@@ -21,7 +22,12 @@ namespace Kegstand.Unity
         {
             initialized = true;
 
-            standDefBuilder = builder ?? new StandDefinitionBuilder(new FlowCalculatorImpl());
+            if (builder == null)
+            {
+                builder = new StandDefinitionBuilder(new FlowCalculatorImpl());
+            }
+
+            standDefBuilder = builder;
         }
 
         private void Start()
@@ -36,6 +42,11 @@ namespace Kegstand.Unity
                 FindExistingKegstandComponentsInScene();
             }
             
+        }
+
+        public void Update()
+        {
+            Simulator.Update(Time.deltaTime);
         }
 
         private void FindExistingKegstandComponentsInScene()
@@ -86,7 +97,7 @@ namespace Kegstand.Unity
                     pureStand = standBuilder.Build();
                 }
                 
-                standWrapper.SetWrappedObject(pureStand);      
+                standWrapper.SetWrappedObject(pureStand);
             }
                 
             Simulator.Register(stand);
