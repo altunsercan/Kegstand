@@ -46,7 +46,7 @@ namespace Kegstand.Unity
                     tapWrapper.SetWrappedObject(pureTap);
                 }
 
-                if (tap is TapComponent tapComponent)
+                if (tap is TapComponent tapComponent && tapComponent.ConnectedKegs != null)
                 {
                     foreach (KegComponent keg in tapComponent.ConnectedKegs)
                     {
