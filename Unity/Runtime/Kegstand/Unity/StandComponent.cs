@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -31,38 +32,27 @@ namespace Kegstand.Unity
             var definition = new StandDefinition();
             if (AutoAddSiblingComponents)
             {
-                DiscoverAndAddSiblingKegComponents(definition);
-                DiscoverAndAddSiblingTapComponents(definition);
+                ProcessSiblingComponent<KegComponent, KegEntry>(definition, definition.Kegs,
+                    component => new KegEntry(component.Id, component));
+                ProcessSiblingComponent<TapComponent, TapEntry>(definition, definition.Taps, 
+                    component => new TapEntry(component.Id, component));
             }
             
             return definition;
         }
-
-        private void DiscoverAndAddSiblingKegComponents(StandDefinition definition)
+        
+        private void ProcessSiblingComponent<T, U>(StandDefinition definition, List<U> listToAppend, Func<T, U> processAction) where T:Component
         {
-            GetComponents(typeof(KegComponent), nonAllocComponentList);
+            GetComponents(typeof(T), nonAllocComponentList);
             foreach (Component component in nonAllocComponentList)
             {
-                if (!(component is KegComponent kegComponent)) continue;
-                
-                var entry = new KegEntry(kegComponent.Id, kegComponent);
-                definition.Kegs.Add(entry);
+                if (!(component is T siblingComponent)) continue;
+                var entry = processAction(siblingComponent);
+                listToAppend.Add(entry);
             }
             nonAllocComponentList.Clear();
         }
 
-        private void DiscoverAndAddSiblingTapComponents(StandDefinition definition)
-        {
-            GetComponents(typeof(TapComponent), nonAllocComponentList);
-            foreach (Component component in nonAllocComponentList)
-            {
-                if (!(component is TapComponent tapComponent)) continue;
-                
-                var entry = new TapEntry(tapComponent.Id, tapComponent);
-                definition.Taps.Add(entry);
-            }
-            nonAllocComponentList.Clear();
-        }
 
         #region Wrapper Implementation
 
