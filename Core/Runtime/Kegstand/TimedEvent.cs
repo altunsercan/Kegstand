@@ -9,14 +9,12 @@ namespace Kegstand
         public Keg Index { get; }
         public float Time { get; }
         public KegEvent Type { get; }
-        
-        public TimedEvent(){}
 
         public TimedEvent(Keg index, float time, KegEvent type)
         {
             Index = index;
             Time = time;
-            Type = Type;
+            Type = type;
         }
         
     }
