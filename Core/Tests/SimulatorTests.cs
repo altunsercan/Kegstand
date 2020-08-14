@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using Kegstand.Impl;
 using NSubstitute;
 using NSubstitute.Core;
@@ -30,12 +31,7 @@ namespace Kegstand.Tests
             // When
             for (var index = 0; index < eventTimes.Length; index++)
             {
-                simulator.AddEvent(new TimedEvent()
-                {
-                    Index = Substitute.For<Keg>(),
-                    Time = eventTimes[index],
-                    Type = KegEvent.Filled
-                });
+                simulator.AddEvent(new TimedEvent(Substitute.For<Keg>(), eventTimes[index], KegEvent.Filled));
             }            
             
             // Then
@@ -104,10 +100,7 @@ namespace Kegstand.Tests
                     .Returns((callInfo)=>
                     {
                         var list = callInfo.Arg<List<TimedEvent>>();
-                        list.Add(new TimedEvent()
-                        {
-                            Index = keg, Time = 1f, Type = KegEvent.Filled
-                        });
+                        list.Add(new TimedEvent( keg,1f, KegEvent.Filled ));
                         return 1;
                     });
                 return new KegEntry(key, keg);
@@ -119,9 +112,9 @@ namespace Kegstand.Tests
         {
             // Given
             Simulator simulator = new Simulator();
-            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 2f, Type = KegEvent.Filled });
-            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 5f, Type = KegEvent.Filled });
-            simulator.AddEvent(new TimedEvent(){ Index = Substitute.For<Keg>(), Time = 7f, Type = KegEvent.Filled });
+            simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 2f, KegEvent.Filled ));
+            simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 5f, KegEvent.Filled ));
+            simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 7f, KegEvent.Filled ));
 
             int total = 0;
             simulator.EventTriggered += OnEventTriggered;
@@ -158,8 +151,7 @@ namespace Kegstand.Tests
             
             // When
             var changeList = new List<TimedEvent>();
-            var fakeEvent = Substitute.ForPartsOf<TimedEvent>();
-            fakeEvent.Time = 2124125f;
+            var fakeEvent = new TimedEvent(Substitute.For<Keg>(), 2124125f, KegEvent.Filled);
             changeList.Add(fakeEvent);
 
             var keg = Substitute.For<Keg>();

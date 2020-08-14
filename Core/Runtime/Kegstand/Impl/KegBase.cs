@@ -102,12 +102,7 @@ namespace Kegstand.Impl
             timedEvent = null;
             if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
             float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
-            timedEvent = new TimedEvent()
-            {
-                Index = this,
-                Time = timeToEmpty,
-                Type = KegEvent.Emptied
-            };
+            timedEvent = new TimedEvent(this, timeToEmpty, KegEvent.Emptied);
             return true;
         }
 
@@ -117,12 +112,7 @@ namespace Kegstand.Impl
             if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
             
             float timeToFill = (MaxAmount - Amount) / AggregateFlow;
-            timedEvent = new TimedEvent()
-            {
-                Index = this,
-                Time = timeToFill,
-                Type = KegEvent.Filled
-            };
+            timedEvent = new TimedEvent(this, timeToFill, KegEvent.Filled);
             return true;
         }
 

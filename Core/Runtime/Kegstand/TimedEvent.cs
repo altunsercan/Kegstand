@@ -1,10 +1,14 @@
-﻿namespace Kegstand
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Kegstand
 {
+    
+    [ExcludeFromCodeCoverage] // Pure data class with no logic
     public class TimedEvent
     {
-        public Keg Index { get; set; }
-        public float Time { get; set; }
-        public KegEvent Type { get; set; }
+        public Keg Index { get; }
+        public float Time { get; }
+        public KegEvent Type { get; }
         
         public TimedEvent(){}
 
