@@ -1,10 +1,11 @@
 ﻿using System;
+using Kegstand.Impl;
 
 namespace Kegstand.Unity
 {
     public class SceneHierarchyStandBuilder
     {
-        private readonly Impl.StandBase.Builder standBuilder = new Impl.StandBase.Builder();
+        private readonly StandBase.Builder standBuilder = new StandBase.Builder();
         
         private KegstandSimulationComponent simulationComponent;
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Kegstand.Unity
 {
@@ -15,7 +16,12 @@ namespace Kegstand.Unity
 
         #region Wrapper Implementation
         public float FlowAmount => wrappedTap?.FlowAmount??flowAmount;
-        public void SetFlow(float f) => wrappedTap.SetFlow(f);
+        public void SetFlow(float f)
+        {
+            Assert.IsNotNull(wrappedTap);
+            wrappedTap.SetFlow(f);
+        }
+
         #endregion Wrapper Implementation
 
     }

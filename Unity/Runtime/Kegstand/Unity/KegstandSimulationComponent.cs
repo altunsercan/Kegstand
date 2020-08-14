@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using Kegstand.Impl;
+using Kegstand.Unity.Impl;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Kegstand.Unity
 {
@@ -9,9 +11,9 @@ namespace Kegstand.Unity
     {
         public bool AutoRegisterComponentsInScene = true;
         public Simulator Simulator { get; private set; }
-        public IReadOnlyList<Stand> Stands => Simulator.Stands;
+        public IReadOnlyList<Stand> Stands => Simulator?.Stands;
 
-        private bool initialized = false;
+        private bool initialized;
         private IStandDefinitionBuilder standDefBuilder;
         
         public void Awake()
@@ -45,35 +47,40 @@ namespace Kegstand.Unity
             
         }
 
-        public void Update()
+        void Update()
         {
-            Simulator.Update(Time.deltaTime);
+            Simulator?.Update(Time.deltaTime);
         }
 
         private void FindExistingKegstandComponentsInScene()
         {
             var rootObjects = gameObject.scene.GetRootGameObjects();
+            Assert.IsNotNull(rootObjects);
+
             var exploreQueue = new Queue<Transform>(rootObjects.Length);
             foreach (GameObject rootGObj in rootObjects)
             {
+                Assert.IsNotNull(rootGObj);
                 exploreQueue.Enqueue(rootGObj.transform);
             }
 
             while (exploreQueue.Count>0)
             {
-                ExploreGameObjectForStand(exploreQueue.Dequeue(), exploreQueue);
+                Transform transformToExplore = exploreQueue.Dequeue();
+                if (transformToExplore == null) { continue; }
+                ExploreGameObjectForStand(transformToExplore, exploreQueue);
             }
             
             exploreQueue.Clear();
         }
 
-        private void ExploreGameObjectForStand(Transform currentObject, Queue<Transform> exploreQueue)
+        private void ExploreGameObjectForStand([NotNull] Transform currentObject, [NotNull] Queue<Transform> exploreQueue)
         {
             AddStandFromGameObjectIfExists(currentObject);
             AppendChildrenToQueue(currentObject.transform, exploreQueue);
         }
         
-        private static void AppendChildrenToQueue(Transform parent, Queue<Transform> exploreQueue)
+        private static void AppendChildrenToQueue([NotNull] Transform parent, [NotNull] Queue<Transform> exploreQueue)
         {
             for (int i = 0; i < parent.childCount; i++)
             {
@@ -81,8 +88,11 @@ namespace Kegstand.Unity
             }
         }
 
-        private void AddStandFromGameObjectIfExists(Transform gObj)
+        private void AddStandFromGameObjectIfExists([NotNull] Transform gObj)
         {
+            Assert.IsNotNull(standDefBuilder);
+            Assert.IsNotNull(Simulator);
+            
             if (!(gObj.GetComponent<Stand>() is Stand stand)) return;
 
             if (stand is IWrapperComponent<Stand> standWrapper)
@@ -94,7 +104,7 @@ namespace Kegstand.Unity
                 }
                 else
                 {
-                    var standBuilder = new Impl.StandBase.Builder();
+                    var standBuilder = new StandBase.Builder();
                     pureStand = standBuilder.Build();
                 }
                 
