@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine.Assertions;
 
 namespace Kegstand.Impl
@@ -18,6 +19,7 @@ namespace Kegstand.Impl
 
         public event KegEventsChangedDelegate EventsChanged;
         
+        [UsedImplicitly]
         public StandBase(List<KegEntry> kegEntries, List<TapEntry> tapEntries)
         {
             Assert.IsNotNull(kegEntries);
@@ -69,6 +71,7 @@ namespace Kegstand.Impl
 
         private void DispatchKegEventChanged(KegEventsChangedArgs changesArgs)
         {
+            Assert.IsNotNull(changesArgs);
             EventsChanged?.Invoke(changesArgs);
         }
 

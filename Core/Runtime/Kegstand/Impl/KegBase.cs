@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Kegstand.Impl
 {
-    public delegate void KegEventsChangedDelegate(KegEventsChangedArgs changes);
-    
+    public delegate void KegEventsChangedDelegate([NotNull] KegEventsChangedArgs changes);
 
     public partial class KegBase : Keg
     {
@@ -73,10 +73,7 @@ namespace Kegstand.Impl
                 CreateCurrentEvents(currentEvents);
             }
             
-            
-            var args = new KegEventsChangedArgs();
-            args.Keg = this;
-            args.Changes = currentEvents.AsReadOnly();
+            var args = new KegEventsChangedArgs(this, currentEvents.AsReadOnly());
             EventsChanged?.Invoke(args) ;
             
             list.AddRange(currentEvents);
