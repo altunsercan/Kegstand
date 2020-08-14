@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Kegstand.Impl
 {
@@ -20,7 +21,8 @@ namespace Kegstand.Impl
         private float cachedAggregateFlow;
 
         private bool isDirtyCurrentEvents = true;
-        private List<TimedEvent> currentEvents = new List<TimedEvent>(); 
+        [NotNull]
+        private readonly List<TimedEvent> currentEvents = new List<TimedEvent>(); 
         
         public float AggregateFlow
         {
@@ -35,13 +37,11 @@ namespace Kegstand.Impl
             }
         } //private set; }
 
-        public IReadOnlyList<Tap> TapList { get; private set; }
-        List<Tap> tapList;
-
+        public IReadOnlyList<Tap> TapList { get; } // Initialized in constructor
+        [NotNull] private readonly List<Tap> tapList = new List<Tap>();
 
         public KegBase()
         {
-            tapList = new List<Tap>();
             TapList = tapList.AsReadOnly();
         }
 
@@ -67,6 +67,8 @@ namespace Kegstand.Impl
 
         public int AppendCurrentEvents(List<TimedEvent> list)
         {
+            Assert.IsNotNull(list);
+            
             if (isDirtyCurrentEvents)
             {
                 isDirtyCurrentEvents = false;
@@ -80,15 +82,15 @@ namespace Kegstand.Impl
             return currentEvents.Count;
         }
 
-        private void CreateCurrentEvents(List<TimedEvent> timedEvents)
+        private void CreateCurrentEvents([NotNull] List<TimedEvent> timedEvents)
         {
             timedEvents.Clear();
             TimedEvent timedEvent;
             if(CreateFillEvent(out timedEvent))
             {
                 timedEvents.Add(timedEvent);
-                
             }
+            
             if (CreateEmptyEvent(out timedEvent))
             {
                 timedEvents.Add(timedEvent);
@@ -107,7 +109,6 @@ namespace Kegstand.Impl
                 Type = KegEvent.Emptied
             };
             return true;
-
         }
 
         private bool CreateFillEvent(out TimedEvent timedEvent)

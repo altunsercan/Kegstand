@@ -154,7 +154,6 @@ namespace Kegstand.Tests
             Simulator simulator = new Simulator();
             Stand stand = Substitute.For<Stand>();
             
-            
             simulator.Register(stand);
             
             // When
@@ -162,9 +161,9 @@ namespace Kegstand.Tests
             var fakeEvent = Substitute.ForPartsOf<TimedEvent>();
             fakeEvent.Time = 2124125f;
             changeList.Add(fakeEvent);
-            
-            var eventsChangedArgs = new KegEventsChangedArgs();
-            eventsChangedArgs.Changes = changeList;
+
+            var keg = Substitute.For<Keg>();
+            var eventsChangedArgs = new KegEventsChangedArgs(keg, changeList);
 
             stand.EventsChanged += Raise.Event<KegEventsChangedDelegate>(eventsChangedArgs);
 

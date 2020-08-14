@@ -66,8 +66,8 @@ namespace Kegstand.Unity
         public IReadOnlyList<KegEntry> Kegs => wrappedStand.Kegs;
         public IReadOnlyList<TapEntry> Taps => wrappedStand.Taps;
 
-        public Keg GetKeg(object uniqueObj) => wrappedStand.GetKeg(uniqueObj);
-        public Tap GetTap(object uniqueObj) => wrappedStand.GetTap(uniqueObj);
+        public Keg GetKeg(object id) => wrappedStand.GetKeg(id);
+        public Tap GetTap(object id) => wrappedStand.GetTap(id);
 
         #endregion Wrapper Implementation
     }

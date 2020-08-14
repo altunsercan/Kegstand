@@ -9,7 +9,7 @@ namespace Kegstand
         event KegEventsChangedDelegate EventsChanged;
         [NotNull] IReadOnlyList<KegEntry> Kegs { get; }
         [NotNull] IReadOnlyList<TapEntry> Taps { get; }
-        Keg GetKeg(object uniqueObj);
-        Tap GetTap(object uniqueObj);
+        Keg GetKeg(object id);
+        Tap GetTap(object id);
     }
 }

@@ -6,16 +6,13 @@ namespace Kegstand.Impl
 {
     public partial class StandBase : Stand
     {
-        private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
-        private readonly List<KegEntry> kegEntries = new List<KegEntry>();
-        private readonly IReadOnlyList<KegEntry> readOnlyKegEntries;
-        public IReadOnlyList<KegEntry> Kegs => readOnlyKegEntries;
+        [NotNull] private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
+        public IReadOnlyList<KegEntry> Kegs { get; }
         
         
-        private readonly Dictionary<object, Tap> taps = new Dictionary<object, Tap>();
-        private readonly List<TapEntry> tapEntries = new List<TapEntry>();
+        [NotNull] private readonly Dictionary<object, Tap> taps = new Dictionary<object, Tap>();
         private readonly IReadOnlyList<TapEntry> readOnlyTapEntries;
-        public IReadOnlyList<TapEntry> Taps => readOnlyTapEntries;
+        public IReadOnlyList<TapEntry> Taps { get; }
 
         public event KegEventsChangedDelegate EventsChanged;
         
@@ -24,21 +21,21 @@ namespace Kegstand.Impl
         {
             Assert.IsNotNull(kegEntries);
             Assert.IsNotNull(tapEntries);
-            
+
             RegisterKegEntries(kegEntries);
-            readOnlyKegEntries = kegEntries.AsReadOnly();
+            Kegs = kegEntries.AsReadOnly();
             
             RegisterTapEntries(tapEntries);
-            readOnlyTapEntries = tapEntries.AsReadOnly();
+            Taps = tapEntries.AsReadOnly();
         }
 
-        private void RegisterKegEntries(List<KegEntry> kegEntriesToRegister)
+        private void RegisterKegEntries([NotNull] List<KegEntry> kegEntriesToRegister)
         {
             foreach (KegEntry entry in kegEntriesToRegister)
                 AddKeg(entry);
         }
 
-        private void RegisterTapEntries(List<TapEntry> tapEntriesToRegister)
+        private void RegisterTapEntries([NotNull] List<TapEntry> tapEntriesToRegister)
         {
             foreach (TapEntry tapEntry in tapEntriesToRegister)
                 AddTap(tapEntry);
@@ -75,17 +72,19 @@ namespace Kegstand.Impl
             EventsChanged?.Invoke(changesArgs);
         }
 
-        public Keg GetKeg(object uniqueObj)
+        public Keg GetKeg(object id)
         {
-            Keg keg = null;
-            kegs.TryGetValue(uniqueObj, out keg);
+            Assert.IsNotNull(id);
+
+            kegs.TryGetValue(id, out Keg keg);
             return keg;
         }
 
-        public Tap GetTap(object uniqueObj)
+        public Tap GetTap(object id)
         {
-            Tap tap = null;
-            taps.TryGetValue(uniqueObj, out tap);
+            Assert.IsNotNull(id);
+            
+            taps.TryGetValue(id, out Tap tap);
             return tap;
         }
     }

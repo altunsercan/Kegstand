@@ -1,14 +1,21 @@
-﻿namespace Kegstand.Impl
+﻿using System.Collections.Generic;
+using UnityEngine.Assertions;
+
+namespace Kegstand.Impl
 {
     public class FlowCalculatorImpl : FlowCalculator
     {
         public float CalculateAggregateFlow(Keg keg)
         {
-            var tapList = keg.TapList;
+            Assert.IsNotNull(keg);
+            
+            IReadOnlyList<Tap> tapList = keg.TapList;
             
             float delta = 0;
-            foreach (Tap tap in tapList)
+            for (var index = 0; index < tapList.Count; index++)
             {
+                Tap tap = tapList[index];
+                if(tap == null) { continue; }
                 delta += tap.FlowAmount;
             }
 

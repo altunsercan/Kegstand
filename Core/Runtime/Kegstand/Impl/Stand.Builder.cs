@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
+using UnityEngine.Assertions;
 
 namespace Kegstand.Impl
 {
@@ -6,12 +8,13 @@ namespace Kegstand.Impl
     {
         public class Builder 
         {
-            private List<KegEntry> kegEntries = new List<KegEntry>();
-            private List<TapEntry> tapEntries = new List<TapEntry>();
-            public Builder() { }
+            [NotNull] private readonly List<KegEntry> kegEntries = new List<KegEntry>();
+            [NotNull] private readonly List<TapEntry> tapEntries = new List<TapEntry>();
 
             public Builder CopyDefinition(StandDefinition definition)
             {
+                Assert.IsNotNull(definition);
+                
                 foreach (KegEntry kegEntry in definition.Kegs)
                     AddKeg(kegEntry.Key, kegEntry.Keg);
             

@@ -1,8 +1,10 @@
-﻿namespace Kegstand.Impl
+﻿using JetBrains.Annotations;
+
+namespace Kegstand.Impl
 {
     public partial class KegBase
     {
-        public class Builder<T> where T : Impl.KegBase, new()
+        public class Builder<T> where T : KegBase, new()
         {
             private FlowCalculator flowCalculator;
             
@@ -16,22 +18,22 @@
                 this.maxAmount = maxAmount;
                 this.minAmount = minAmount;
             }
-
-            public Builder<T> Max(float maxAmount)
+            
+            public Builder<T> Max(float max)
             {
-                this.maxAmount = maxAmount;
+                this.maxAmount = max;
                 return this;
             }
 
-            public Builder<T> Min(float minAmount)
+            public Builder<T> Min(float min)
             {
-                this.minAmount = minAmount;
+                this.minAmount = min;
                 return this;
             }
 
-            public Builder<T> StartWith(float startAmount)
+            public Builder<T> StartWith(float startsWith)
             {
-                this.startAmount = startAmount;
+                this.startAmount = startsWith;
                 return this;
             }
 
