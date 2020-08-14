@@ -1,4 +1,4 @@
-﻿namespace Kegstand
+﻿namespace Kegstand.Impl
 {
     public class TapBase : Tap
     {

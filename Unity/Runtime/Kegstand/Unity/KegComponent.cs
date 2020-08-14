@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using Kegstand.Impl;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Kegstand.Unity
 {
@@ -20,19 +22,62 @@ namespace Kegstand.Unity
         #region Wrapper Implementation
         public event KegEventsChangedDelegate EventsChanged
         {
-            add => wrappedKeg.EventsChanged += value;
-            remove => wrappedKeg.EventsChanged -= value;
+            add
+            {
+                Assert.IsNotNull(wrappedKeg);
+                wrappedKeg.EventsChanged += value;
+            }
+            remove
+            {
+                Assert.IsNotNull(wrappedKeg);
+                wrappedKeg.EventsChanged -= value;
+            }
         }
-        public float MaxAmount => wrappedKeg?.MaxAmount??maxAmount;
-        public float MinAmount => wrappedKeg?.MinAmount??minAmount;
-        public float Amount => wrappedKeg?.Amount??amount;
-        public float AggregateFlow => wrappedKeg.AggregateFlow;
-        public IReadOnlyList<Tap> TapList => wrappedKeg.TapList;
-        public void Increment(float delta) => wrappedKeg.Increment(delta);
-        public void Decrement(float decrement) => wrappedKeg.Decrement(decrement);
-        public int AppendCurrentEvents(List<TimedEvent> list) => wrappedKeg.AppendCurrentEvents(list);
 
-        public void AddTap(Tap tap) => wrappedKeg.AddTap(tap);
+        public float MaxAmount => wrappedKeg?.MaxAmount??maxAmount; // Pass through serialized value pre initialization
+        public float MinAmount => wrappedKeg?.MinAmount??minAmount; // Pass through serialized value pre initialization
+        public float Amount => wrappedKeg?.Amount??amount;  // Pass through serialized value pre initialization
+        public float AggregateFlow
+        {
+            get
+            {
+                Assert.IsNotNull(wrappedKeg);
+                return wrappedKeg.AggregateFlow;
+            }
+        }
+
+        public IReadOnlyList<Tap> TapList
+        {
+            get
+            {
+                Assert.IsNotNull(wrappedKeg);
+                return wrappedKeg.TapList;
+            }
+        }
+
+        public void Increment(float delta)
+        {
+            Assert.IsNotNull(wrappedKeg);
+            wrappedKeg.Increment(delta);
+        }
+
+        public void Decrement(float decrement)
+        {
+            Assert.IsNotNull(wrappedKeg);
+            wrappedKeg.Decrement(decrement);
+        }
+
+        public int AppendCurrentEvents(List<TimedEvent> list)
+        {
+            Assert.IsNotNull(wrappedKeg);
+            return wrappedKeg.AppendCurrentEvents(list);
+        }
+
+        public void AddTap(Tap tap)
+        {
+            Assert.IsNotNull(wrappedKeg);
+            wrappedKeg.AddTap(tap);
+        }
 
         #endregion Wrapper Implementation
 

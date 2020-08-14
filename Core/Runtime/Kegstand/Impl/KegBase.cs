@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Assertions;
 
-namespace Kegstand
+namespace Kegstand.Impl
 {
-    public class KegEventsChangedArgs
-    {
-        public Keg Keg { get; set; }
-        public IReadOnlyList<TimedEvent> Changes { get; set; }
-    }
-    
-    public delegate void KegEventsChangedDelegate(KegEventsChangedArgs changes);
-    
+    public delegate void KegEventsChangedDelegate([NotNull] KegEventsChangedArgs changes);
 
     public partial class KegBase : Keg
     {
@@ -26,7 +21,8 @@ namespace Kegstand
         private float cachedAggregateFlow;
 
         private bool isDirtyCurrentEvents = true;
-        private List<TimedEvent> currentEvents = new List<TimedEvent>(); 
+        [NotNull]
+        private readonly List<TimedEvent> currentEvents = new List<TimedEvent>(); 
         
         public float AggregateFlow
         {
@@ -41,13 +37,11 @@ namespace Kegstand
             }
         } //private set; }
 
-        public IReadOnlyList<Tap> TapList { get; private set; }
-        List<Tap> tapList;
-
+        public IReadOnlyList<Tap> TapList { get; } // Initialized in constructor
+        [NotNull] private readonly List<Tap> tapList = new List<Tap>();
 
         public KegBase()
         {
-            tapList = new List<Tap>();
             TapList = tapList.AsReadOnly();
         }
 
@@ -73,31 +67,30 @@ namespace Kegstand
 
         public int AppendCurrentEvents(List<TimedEvent> list)
         {
+            Assert.IsNotNull(list);
+            
             if (isDirtyCurrentEvents)
             {
                 isDirtyCurrentEvents = false;
                 CreateCurrentEvents(currentEvents);
             }
             
-            
-            var args = new KegEventsChangedArgs();
-            args.Keg = this;
-            args.Changes = currentEvents.AsReadOnly();
+            var args = new KegEventsChangedArgs(this, currentEvents.AsReadOnly());
             EventsChanged?.Invoke(args) ;
             
             list.AddRange(currentEvents);
             return currentEvents.Count;
         }
 
-        private void CreateCurrentEvents(List<TimedEvent> timedEvents)
+        private void CreateCurrentEvents([NotNull] List<TimedEvent> timedEvents)
         {
             timedEvents.Clear();
             TimedEvent timedEvent;
             if(CreateFillEvent(out timedEvent))
             {
                 timedEvents.Add(timedEvent);
-                
             }
+            
             if (CreateEmptyEvent(out timedEvent))
             {
                 timedEvents.Add(timedEvent);
@@ -109,14 +102,8 @@ namespace Kegstand
             timedEvent = null;
             if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
             float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
-            timedEvent = new TimedEvent()
-            {
-                Index = this,
-                Time = timeToEmpty,
-                Type = KegEvent.Emptied
-            };
+            timedEvent = new TimedEvent(this, timeToEmpty, KegEvent.Emptied);
             return true;
-
         }
 
         private bool CreateFillEvent(out TimedEvent timedEvent)
@@ -125,12 +112,7 @@ namespace Kegstand
             if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
             
             float timeToFill = (MaxAmount - Amount) / AggregateFlow;
-            timedEvent = new TimedEvent()
-            {
-                Index = this,
-                Time = timeToFill,
-                Type = KegEvent.Filled
-            };
+            timedEvent = new TimedEvent(this, timeToFill, KegEvent.Filled);
             return true;
         }
 

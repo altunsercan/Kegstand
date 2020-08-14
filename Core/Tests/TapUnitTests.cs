@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Kegstand.Impl;
+using NUnit.Framework;
 
 namespace Kegstand.Tests
 {
@@ -12,13 +13,13 @@ namespace Kegstand.Tests
          * 
          */
 
-        private KegBase.Builder<KegBase> builder;
+        private Impl.KegBase.Builder<Impl.KegBase> builder;
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
 
-            builder = new KegBase.Builder<KegBase>();
+            builder = new Impl.KegBase.Builder<Impl.KegBase>();
             builder.WithCalculator(calculator);
         }
 
@@ -29,7 +30,7 @@ namespace Kegstand.Tests
         {
             // Given
             Tap tap = new TapBase(flowAmount);
-            KegBase keg = builder.StartWith(50f).Build();
+            Impl.KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             
             // When
@@ -46,7 +47,7 @@ namespace Kegstand.Tests
             // Given
             Tap tap = new TapBase();
             tap.SetFlow(1f);
-            KegBase keg = builder.StartWith(50f).Build();
+            Impl.KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             keg.AddTap(tap);
             

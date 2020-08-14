@@ -1,6 +1,6 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 
-namespace Kegstand
+namespace Kegstand.Impl
 {
     public partial class KegBase
     {
@@ -18,22 +18,22 @@ namespace Kegstand
                 this.maxAmount = maxAmount;
                 this.minAmount = minAmount;
             }
-
-            public Builder<T> Max(float maxAmount)
+            
+            public Builder<T> Max(float max)
             {
-                this.maxAmount = maxAmount;
+                this.maxAmount = max;
                 return this;
             }
 
-            public Builder<T> Min(float minAmount)
+            public Builder<T> Min(float min)
             {
-                this.minAmount = minAmount;
+                this.minAmount = min;
                 return this;
             }
 
-            public Builder<T> StartWith(float startAmount)
+            public Builder<T> StartWith(float startsWith)
             {
-                this.startAmount = startAmount;
+                this.startAmount = startsWith;
                 return this;
             }
 
