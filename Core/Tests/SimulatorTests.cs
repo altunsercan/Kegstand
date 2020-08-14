@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Kegstand.Impl;
 using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.Routing.AutoValues;
@@ -9,13 +10,13 @@ namespace Kegstand.Tests
 {
     public class SimulatorTests
     {
-        private KegBase.Builder<KegBase> kegBuilder;
+        private Impl.KegBase.Builder<Impl.KegBase> kegBuilder;
         
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
-            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
+            kegBuilder = new Impl.KegBase.Builder<Impl.KegBase>(flowCalculator:calculator);
         }
         
         [Test]

@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Kegstand
+﻿namespace Kegstand.Impl
 {
     public partial class KegBase
     {
-        public class Builder<T> where T : KegBase, new()
+        public class Builder<T> where T : Impl.KegBase, new()
         {
             private FlowCalculator flowCalculator;
             

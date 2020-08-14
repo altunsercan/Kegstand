@@ -2,14 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Kegstand
+namespace Kegstand.Impl
 {
-    public class KegEventsChangedArgs
-    {
-        public Keg Keg { get; set; }
-        public IReadOnlyList<TimedEvent> Changes { get; set; }
-    }
-    
     public delegate void KegEventsChangedDelegate(KegEventsChangedArgs changes);
     
 

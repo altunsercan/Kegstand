@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Kegstand.Impl;
 
 namespace Kegstand.Unity
 {
@@ -29,7 +30,7 @@ namespace Kegstand.Unity
             
             BuildTapWrappers(definition.Taps);
 
-            var standBuilder = new StandBase.Builder();
+            var standBuilder = new Impl.StandBase.Builder();
             standBuilder.CopyDefinition( definition );
             return standBuilder.Build();
         }
@@ -64,13 +65,13 @@ namespace Kegstand.Unity
 
                 if (keg is IWrapperComponent<Keg> kegWrapper)
                 {
-                    var kegBuilder = new KegBase.Builder<KegBase>();
+                    var kegBuilder = new Impl.KegBase.Builder<Impl.KegBase>();
                     // TODO Initialize keg
                     kegBuilder.Max(keg.MaxAmount);
                     kegBuilder.Min(keg.MinAmount);
                     kegBuilder.StartWith(keg.Amount);
                     kegBuilder.WithCalculator(flowCalculator);
-                    KegBase pureKeg = kegBuilder.Build();
+                    Impl.KegBase pureKeg = kegBuilder.Build();
                     kegWrapper.SetWrappedObject(pureKeg);
                 }
             }

@@ -4,7 +4,7 @@ namespace Kegstand.Unity
 {
     public class SceneHierarchyStandBuilder
     {
-        private readonly StandBase.Builder standBuilder = new StandBase.Builder();
+        private readonly Impl.StandBase.Builder standBuilder = new Impl.StandBase.Builder();
         
         private KegstandSimulationComponent simulationComponent;
 

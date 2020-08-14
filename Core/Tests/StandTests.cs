@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Kegstand.Impl;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -7,16 +8,16 @@ namespace Kegstand.Tests
 {
     public class StandTests
     {
-        private KegBase.Builder<KegBase> kegBuilder;
-        private StandBase.Builder standBuilder;
+        private Impl.KegBase.Builder<Impl.KegBase> kegBuilder;
+        private Impl.StandBase.Builder standBuilder;
 
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
-            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
+            kegBuilder = new Impl.KegBase.Builder<Impl.KegBase>(flowCalculator:calculator);
             
-            standBuilder = new StandBase.Builder();
+            standBuilder = new Impl.StandBase.Builder();
         }
         
         [Test]

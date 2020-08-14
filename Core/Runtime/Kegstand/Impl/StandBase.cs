@@ -1,19 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using System.Collections.Generic;
 using UnityEngine.Assertions;
 
-namespace Kegstand
+namespace Kegstand.Impl
 {
-    public interface Stand
-    {
-        event KegEventsChangedDelegate EventsChanged;
-        IReadOnlyList<KegEntry> Kegs { get; }
-        IReadOnlyList<TapEntry> Taps { get; }
-        Keg GetKeg(object uniqueObj);
-        Tap GetTap(object uniqueObj);
-    }
-
     public partial class StandBase : Stand
     {
         private readonly Dictionary<object, Keg> kegs = new Dictionary<object, Keg>();
@@ -95,30 +84,6 @@ namespace Kegstand
             Tap tap = null;
             taps.TryGetValue(uniqueObj, out tap);
             return tap;
-        }
-    }
-
-    public readonly struct KegEntry
-    {
-        public readonly object Key;
-        public readonly Keg Keg;
-
-        public KegEntry(object key, Keg keg)
-        {
-            Key = key;
-            Keg = keg;
-        }
-    }
-    
-    public readonly struct TapEntry
-    {
-        public readonly object Key;
-        public readonly Tap Tap;
-
-        public TapEntry(object key, Tap tap)
-        {
-            Key = key;
-            Tap = tap;
         }
     }
 }

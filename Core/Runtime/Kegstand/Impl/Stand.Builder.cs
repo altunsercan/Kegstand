@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Kegstand
+namespace Kegstand.Impl
 {
     public partial class StandBase
     {

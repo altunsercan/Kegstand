@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Kegstand.Impl;
 using UnityEngine;
 
 namespace Kegstand.Unity
@@ -93,7 +94,7 @@ namespace Kegstand.Unity
                 }
                 else
                 {
-                    var standBuilder = new StandBase.Builder();
+                    var standBuilder = new Impl.StandBase.Builder();
                     pureStand = standBuilder.Build();
                 }
                 
