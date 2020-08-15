@@ -18,7 +18,7 @@ namespace Kegstand.Unity
         
         public void Awake()
         {
-            Simulator = new Simulator();
+            Simulator = new Simulator<TimeSpanClock>();
         }
 
         public void Initialize(IStandDefinitionBuilder builder = null)

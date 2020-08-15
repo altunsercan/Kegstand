@@ -26,7 +26,7 @@ namespace Kegstand.Tests
         public void ShouldMaintainTimeOrderedEvents(params float[] eventTimes)
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             
             // When
             for (var index = 0; index < eventTimes.Length; index++)
@@ -43,7 +43,7 @@ namespace Kegstand.Tests
         public void ShouldBeAbleToRegisterStands(int standCount)
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             List<Stand> testList = new List<Stand>();
             
             // When
@@ -64,7 +64,7 @@ namespace Kegstand.Tests
         public void ShouldNotRegisterSameStandMultipleTimes()
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             
             // When
             Stand stand = Substitute.For<Stand>();
@@ -79,7 +79,7 @@ namespace Kegstand.Tests
         public void ShouldRegisterStandEvents()
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             Stand stand = Substitute.For<Stand>();
             stand.Kegs.Returns((_)=>new List<KegEntry>(){ MakeTestKeg() });
             
@@ -111,7 +111,7 @@ namespace Kegstand.Tests
         public void ShouldInvokeEventsWithElapsedTimers()
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 2f, KegEvent.Filled ));
             simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 5f, KegEvent.Filled ));
             simulator.AddEvent(new TimedEvent( Substitute.For<Keg>(), 7f, KegEvent.Filled ));
@@ -144,7 +144,7 @@ namespace Kegstand.Tests
         public void ShouldRescheduleEventsOnKegEventChange()
         {
             // Given
-            Simulator simulator = new Simulator();
+            Simulator<TimeSpanClock> simulator = new Simulator<TimeSpanClock>();
             Stand stand = Substitute.For<Stand>();
             
             simulator.Register(stand);

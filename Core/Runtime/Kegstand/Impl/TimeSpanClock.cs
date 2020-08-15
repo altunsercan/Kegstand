@@ -6,6 +6,11 @@ namespace Kegstand.Impl
     {
         private TimeSpan currentTime;
 
+        public TimeSpanClock()
+        {
+            currentTime = TimeSpan.Zero;
+        }
+
         public TimeSpanClock(TimeSpan startTime)
         {
             currentTime = startTime;

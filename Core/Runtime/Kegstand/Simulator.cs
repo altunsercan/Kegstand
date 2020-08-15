@@ -5,22 +5,33 @@ using UnityEngine.Assertions;
 
 namespace Kegstand
 {
-    public class Simulator
+    public interface Simulator
+    {
+        IReadOnlyList<Stand> Stands { get; }
+        event Action<TimedEvent> EventTriggered;
+        void AddEvent(TimedEvent timedEvent);
+        void Register(Stand stand);
+        void Update(float deltaTime);
+    }
+
+    public class Simulator<TClock> : Simulator where TClock : Clock, new()
     {
         [NotNull] private static readonly List<TimedEvent> TimedEventsScratchList = new List<TimedEvent>();
         
         public readonly IReadOnlyList<TimedEvent> Events;
-        public readonly IReadOnlyList<Stand> Stands;
-        
+        public IReadOnlyList<Stand> Stands { get; }
+
         [NotNull] private readonly List<TimedEvent> events = new List<TimedEvent>();
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
         
         public event Action<TimedEvent> EventTriggered;
 
-        private float clock = 0f;
-
+        private readonly TClock clockObj;
+        private float clock;
+        
         public Simulator()
         {
+            clockObj = new TClock();
             Events = events.AsReadOnly();
             Stands = stands.AsReadOnly();
         }
@@ -117,35 +128,6 @@ namespace Kegstand
             if (y == null) { return 1; }
             
             return (Math.Abs(x.Time - y.Time) < float.Epsilon) ? 0 : (x.Time > y.Time) ? 1 : -1;
-        }
-        
-        private class KegEventsChangeObserver : IObserver<KegEventsChangedArgs>
-        {
-            [NotNull] private readonly Simulator simulator;
-
-            public KegEventsChangeObserver(Simulator simulator)
-            {
-                Assert.IsNotNull(simulator);
-                this.simulator = simulator;
-            }
-
-            public void OnNext(KegEventsChangedArgs value)
-            {
-                // Auto-mocked NSubstitute will return null
-                if (value == null){ return; }
-                
-                simulator.OnKegEventsChanged(value);
-            }
-            
-            public void OnError(Exception error)
-            {
-                throw error;
-            }
-            
-            public void OnCompleted()
-            {
-                // Ignore because stream can be completed when a stand is unregistered
-            }
         }
     }
 }
