@@ -1,10 +1,11 @@
-﻿using System;
+﻿using JetBrains.Annotations;
 
 namespace Kegstand
 {
-    public interface Clock
+    public interface Clock<TTimeValue>
     {
         void Update(float deltaSeconds);
-        ref TimeSpan GetCurrentTimePassed();
+        [NotNull]
+        ref TTimeValue GetCurrentTimePassed();
     }
 }

@@ -67,10 +67,10 @@ namespace Kegstand.Unity
             wrappedKeg.Decrement(decrement);
         }
 
-        public int AppendCurrentEvents(List<TimedEvent> list)
+        public int AppendCurrentEvents(TimedEventQueue queue)
         {
             Assert.IsNotNull(wrappedKeg);
-            return wrappedKeg.AppendCurrentEvents(list);
+            return wrappedKeg.AppendCurrentEvents(queue);
         }
 
         public void AddTap(Tap tap)

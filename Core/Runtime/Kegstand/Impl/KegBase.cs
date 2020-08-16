@@ -65,54 +65,52 @@ namespace Kegstand.Impl
             Amount = Mathf.Max(Amount - delta, MinAmount);
         }
 
-        public int AppendCurrentEvents(List<TimedEvent> list)
+        public int AppendCurrentEvents(TimedEventQueue queue)
         {
-            Assert.IsNotNull(list);
+            Assert.IsNotNull(queue);
             
             if (isDirtyCurrentEvents)
             {
                 isDirtyCurrentEvents = false;
-                CreateCurrentEvents(currentEvents);
+                CreateCurrentEvents(currentEvents, queue);
             }
             
             var args = new KegEventsChangedArgs(this, currentEvents.AsReadOnly());
             EventsChanged?.Invoke(args) ;
-            
-            list.AddRange(currentEvents);
             return currentEvents.Count;
         }
 
-        private void CreateCurrentEvents([NotNull] List<TimedEvent> timedEvents)
+        private void CreateCurrentEvents([NotNull] List<TimedEvent> timedEvents, [NotNull]TimedEventQueue queue)
         {
             timedEvents.Clear();
             TimedEvent timedEvent;
-            if(CreateFillEvent(out timedEvent))
+            if(CreateFillEvent(queue, out timedEvent))
             {
                 timedEvents.Add(timedEvent);
             }
             
-            if (CreateEmptyEvent(out timedEvent))
+            if (CreateEmptyEvent(queue, out timedEvent))
             {
                 timedEvents.Add(timedEvent);
             }
         }
 
-        private bool CreateEmptyEvent(out TimedEvent timedEvent)
+        private bool CreateEmptyEvent([NotNull]TimedEventQueue queue, out TimedEvent timedEvent)
         {
             timedEvent = null;
             if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
             float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
-            timedEvent = new TimedEvent(this, timeToEmpty, KegEvent.Emptied);
+            timedEvent = queue.EnqueueNewEventToBuffer(this, timeToEmpty, KegEvent.Emptied);
             return true;
         }
 
-        private bool CreateFillEvent(out TimedEvent timedEvent)
+        private bool CreateFillEvent([NotNull]TimedEventQueue queue, out TimedEvent timedEvent)
         {
             timedEvent = null;
             if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
             
             float timeToFill = (MaxAmount - Amount) / AggregateFlow;
-            timedEvent = new TimedEvent(this, timeToFill, KegEvent.Filled);
+            timedEvent = queue.EnqueueNewEventToBuffer(this, timeToFill, KegEvent.Filled);
             return true;
         }
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
+using Kegstand.Impl;
 using UnityEngine.Assertions;
 
 namespace Kegstand
@@ -9,33 +11,128 @@ namespace Kegstand
     {
         IReadOnlyList<Stand> Stands { get; }
         event Action<TimedEvent> EventTriggered;
-        void AddEvent(TimedEvent timedEvent);
+        bool AddEvent(TimedEvent timedEvent);
         void Register(Stand stand);
         void Update(float deltaTime);
     }
 
-    public class Simulator<TClock> : Simulator where TClock : Clock, new()
+    public interface TimedEventQueue : IList<TimedEvent>
     {
-        [NotNull] private static readonly List<TimedEvent> TimedEventsScratchList = new List<TimedEvent>();
+        TimedEvent EnqueueNewEventToBuffer(Keg keg, float deltaTimeUnit, KegEvent eventType);
+    }
+
+    [Obsolete("Temporarily created for refactoring. Will be updated after preparing unit testing")]
+    public class TempTimedEventQueue<TTimeValue> : List<TimedEvent<TTimeValue>>, TimedEventQueue 
+        where TTimeValue : IComparable<TTimeValue>
+    {
+        [NotNull]
+        private readonly Func<float, TTimeValue> timeUnitConverter;
+
+        public TempTimedEventQueue(Func<float, TTimeValue> timeUnitConverter)
+        {
+            Assert.IsNotNull(timeUnitConverter);
+            this.timeUnitConverter = timeUnitConverter;
+        }
+
+        #region IList<TimedEvent>
+        IEnumerator<TimedEvent> IEnumerable<TimedEvent>.GetEnumerator()
+        {
+            return this.Cast<TimedEvent>().GetEnumerator();
+        }
         
-        public readonly IReadOnlyList<TimedEvent> Events;
+        void ICollection<TimedEvent>.Add(TimedEvent item)
+        {
+            if (item is TimedEvent<TTimeValue> typedItem)
+            {
+                Add(typedItem);
+            }
+        }
+
+        bool ICollection<TimedEvent>.Contains(TimedEvent item)
+        {
+            if (item is TimedEvent<TTimeValue> typedItem)
+            {
+                return Contains(typedItem);
+            }
+            return false;
+        }
+
+        public void CopyTo(TimedEvent[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool ICollection<TimedEvent>.Remove(TimedEvent item)
+        {
+            if (item is TimedEvent<TTimeValue> typedItem)
+            {
+                return Remove(typedItem);
+            }
+            return false;
+        }
+
+        bool ICollection<TimedEvent>.IsReadOnly => false;
+        
+        int IList<TimedEvent>.IndexOf(TimedEvent item)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IList<TimedEvent>.Insert(int index, TimedEvent item)
+        {
+            throw new NotImplementedException();
+        }
+
+        TimedEvent IList<TimedEvent>.this[int index]
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+        #endregion  IList<TimedEvent>
+
+        public TimedEvent EnqueueNewEventToBuffer(Keg keg, float deltaTimeUnit, KegEvent eventType)
+        {
+            var timedEvent = new TimedEvent<TTimeValue>(keg, timeUnitConverter(deltaTimeUnit), eventType);
+            Add(timedEvent);
+            return timedEvent;
+        }
+    }
+
+    public class Simulator<TTimeValue, TClock> : Simulator 
+        where TClock : class, Clock<TTimeValue>, new()
+        where TTimeValue : IComparable<TTimeValue>
+    {
+        [NotNull] private readonly TempTimedEventQueue<TTimeValue> timedEventsScratchList;
+
+        public readonly IReadOnlyList<TimedEvent<TTimeValue>> Events;
         public IReadOnlyList<Stand> Stands { get; }
 
-        [NotNull] private readonly List<TimedEvent> events = new List<TimedEvent>();
+        [NotNull] private readonly List<TimedEvent<TTimeValue>> events = new List<TimedEvent<TTimeValue>>();
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
         
         public event Action<TimedEvent> EventTriggered;
 
-        private readonly TClock clockObj;
+        [NotNull]
+        private readonly TClock clock;
         
-        public Simulator()
+        public Simulator(Func<float, TTimeValue> unitTimeConverter)
         {
-            clockObj = new TClock();
+            timedEventsScratchList = new TempTimedEventQueue<TTimeValue>(unitTimeConverter);
+            
+            clock = new TClock();
             Events = events.AsReadOnly();
             Stands = stands.AsReadOnly();
         }
 
-        public void AddEvent(TimedEvent timedEvent)
+        public bool AddEvent(TimedEvent timedEvent)
+        {
+            if (!(timedEvent is TimedEvent<TTimeValue> validTimeEvent)) return false;
+            
+            AddEvent(validTimeEvent);
+            return true;
+        }
+        
+        private void AddEvent(TimedEvent<TTimeValue> timedEvent)
         {
             events.Add(timedEvent);
             events.Sort(SortEventsByTimeComparison);
@@ -56,26 +153,28 @@ namespace Kegstand
             {
                 KegEntry kegEntry = kegs[kegIndex];
                 Keg keg = kegEntry.Keg;
-                keg.AppendCurrentEvents(TimedEventsScratchList);
+                keg.AppendCurrentEvents(timedEventsScratchList);
             }
 
-            events.AddRange(TimedEventsScratchList);
+            // TODO: Move sorting logic to the Queue
+            events.AddRange(timedEventsScratchList);
             events.Sort(SortEventsByTimeComparison);
-            TimedEventsScratchList.Clear();
+            timedEventsScratchList.Clear();
             
             stand.EventsChanged += OnKegEventsChanged;
         }
 
         public void Update(float deltaTime)
         {
-            clockObj.Update(deltaTime); 
-            ref TimeSpan timePassed = ref clockObj.GetCurrentTimePassed();
+            clock.Update(deltaTime); 
+            
             var i = 0;
             for (; i < events.Count; i++)
             {
-                TimedEvent timedEvent = events[i];
+                TimedEvent<TTimeValue> timedEvent = events[i];
                 if(timedEvent==null) { return; }
-                if (timedEvent.Time > timePassed.Seconds) { break; }
+                
+                if (!timedEvent.IsPassed(clock)) { break; }
                 
                 EventTriggered?.Invoke(timedEvent);
             }
@@ -90,8 +189,8 @@ namespace Kegstand
             
             for (var changeIndex = 0; changeIndex < changes.Count; changeIndex++)
             {
-                TimedEvent changedEvt = changeArgs.Changes[changeIndex];
-                if (changedEvt == null) { continue; }
+                TimedEvent evt = changeArgs.Changes[changeIndex];
+                if (!(evt is TimedEvent<TTimeValue> changedEvt)) { continue; }
                 
                 var isNewEvent = true;
                 for (var index = 0; isNewEvent && (index < events.Count); index++)
@@ -106,7 +205,7 @@ namespace Kegstand
             }
         }
 
-        private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent changedEvt)
+        private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent<TTimeValue> changedEvt)
         {
             TimedEvent existingEvt = events[index];
 
@@ -121,13 +220,13 @@ namespace Kegstand
             return false;
         }
 
-        private static int SortEventsByTimeComparison(TimedEvent x, TimedEvent y)
+        private static int SortEventsByTimeComparison(TimedEvent<TTimeValue> x, TimedEvent<TTimeValue> y)
         {
             if (x == null && y == null) { return 0; }
             if (x == null) { return -1; }
             if (y == null) { return 1; }
             
-            return (Math.Abs(x.Time - y.Time) < float.Epsilon) ? 0 : (x.Time > y.Time) ? 1 : -1;
+            return x.Time.CompareTo(y.Time);
         }
     }
 }

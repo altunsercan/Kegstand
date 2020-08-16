@@ -12,7 +12,7 @@ namespace Kegstand.Tests
         {
             // Given
             TimeSpan startTime = TimeSpan.Zero;
-            Clock clock = new TimeSpanClock(startTime);
+            Clock<TimeSpan> clock = new TimeSpanClock(startTime);
             
             // When
             clock.Update(deltaSeconds: 1f);

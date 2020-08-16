@@ -2,7 +2,7 @@
 
 namespace Kegstand.Impl
 {
-    public class TimeSpanClock : Clock
+    public class TimeSpanClock : Clock<TimeSpan>
     {
         private TimeSpan currentTime;
 

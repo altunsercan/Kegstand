@@ -16,7 +16,7 @@ namespace Kegstand
         void Increment(float delta);
         void Decrement(float decrement);
         [Obsolete("Method will be moved out out of public interface")]
-        int AppendCurrentEvents(List<TimedEvent> list);
+        int AppendCurrentEvents(TimedEventQueue queue);
         [Obsolete("Method will be moved out out of public interface")]
         void AddTap(Tap tap);
     }
