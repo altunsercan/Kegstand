@@ -19,7 +19,7 @@ namespace Kegstand.Unity
         
         public void Awake()
         {
-            Simulator = new Simulator<TimeSpan, TimeSpanClock>(timeUnit=>TimeSpan.FromSeconds(timeUnit));
+            Simulator = SimulatorFactory.CreateDefault();
         }
 
         public void Initialize(IStandDefinitionBuilder builder = null)

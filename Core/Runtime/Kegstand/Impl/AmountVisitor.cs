@@ -19,6 +19,12 @@ namespace Kegstand.Impl
 
         public float CalculateCurrentAmount(float recordedAmount, float currentFlow, Timestamp recordedTimestamp)
         {
+            if (recordedTimestamp == null)
+            {
+                // Assuming default time
+                recordedTimestamp = new Timestamp<TTimeValue>(default(TTimeValue));
+            }
+            
             Assert.IsNotNull(recordedTimestamp);
             
             if (Math.Abs(currentFlow) < float.Epsilon)
@@ -31,8 +37,8 @@ namespace Kegstand.Impl
                 throw new ArgumentException($"Invalid typed {nameof(Timestamp)} expected {nameof(TTimeValue)}", nameof(recordedTimestamp));
             }
             
-            TTimeValue currentTime = typedTimeStamp.Time;
-            TTimeValue anchorTime = timestamp.Time;
+            TTimeValue currentTime = timestamp.Time;
+            TTimeValue anchorTime = typedTimeStamp.Time;
             
             var deltaTime = CalculateDeltaSeconds( ref currentTime, ref anchorTime);
             return recordedAmount + currentFlow * deltaTime;
@@ -50,6 +56,18 @@ namespace Kegstand.Impl
         protected override float CalculateDeltaSeconds(ref TimeSpan timeToCheck, ref TimeSpan anchorTime)
         {
             return (float)(timeToCheck.TotalSeconds - anchorTime.TotalSeconds);
+        }
+    }
+
+    public class NullAmountVisitor : IAmountVisitor
+    {
+        public static NullAmountVisitor Instance = new NullAmountVisitor();
+        
+        private NullAmountVisitor(){}
+        
+        public float CalculateCurrentAmount(float recordedAmount, float currentFlow, Timestamp recordedTimestamp)
+        {
+            return recordedAmount;
         }
     }
         

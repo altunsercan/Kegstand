@@ -30,7 +30,7 @@ namespace Kegstand.Tests
             keg.Increment(increment);
 
             // Then
-            Assert.AreEqual(keg.Amount, result);
+            Assert.AreEqual(keg.Amount(NullAmountVisitor.Instance), result);
         }
         
         [Test]
@@ -55,7 +55,7 @@ namespace Kegstand.Tests
             keg.Decrement(decrement);
 
             // Then
-            Assert.AreEqual(keg.Amount, result);
+            Assert.AreEqual(result, keg.Amount(NullAmountVisitor.Instance));
         }
         
         [Test]
@@ -113,7 +113,7 @@ namespace Kegstand.Tests
             Impl.KegBase keg = kegBuilder.WithCalculator(calculator).Build();
             
             // When
-            int eventCount = keg.AppendCurrentEvents(list);
+            int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
 
             // Then
             Assert.Greater(eventCount, 0);
@@ -134,7 +134,7 @@ namespace Kegstand.Tests
             Impl.KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(50f).Build();
             
             // When
-            int eventCount = keg.AppendCurrentEvents(list);
+            int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
 
             // Then
             Assert.Greater(eventCount, 0);
@@ -158,7 +158,7 @@ namespace Kegstand.Tests
             Impl.KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(startingAmount).Build();
             
             // When
-            int eventCount = keg.AppendCurrentEvents(list);
+            int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
 
             // Then
             Assert.AreEqual(0, eventCount);
@@ -179,7 +179,7 @@ namespace Kegstand.Tests
 
             // When
             TimedEventQueue events = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
-            keg.AppendCurrentEvents(events);
+            keg.AppendCurrentEvents(NullAmountVisitor.Instance, events);
             TimeSpan previousTime = events.Cast<TimedEvent<TimeSpan>>()
                 .Where(evt => evt.Type == KegEvent.Filled)
                 .Select(evt=>evt.Time).FirstOrDefault();
@@ -189,7 +189,7 @@ namespace Kegstand.Tests
             flow = 2;
             keg.InvalidateFlowCache();
             TimedEventQueue newEvents = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
-            keg.AppendCurrentEvents(newEvents);
+            keg.AppendCurrentEvents(NullAmountVisitor.Instance, newEvents);
             TimeSpan changedTime = kegEventsChangedArgs.Changes.Cast<TimedEvent<TimeSpan>>()
                 .First(evt => evt.Type == KegEvent.Filled).Time;
 

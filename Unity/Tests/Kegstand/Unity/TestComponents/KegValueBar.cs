@@ -1,4 +1,5 @@
 ﻿using Kegstand;
+using Kegstand.Impl;
 using Kegstand.Unity;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,6 +40,7 @@ public class KegValueBar : MonoBehaviour
 
     void Update()
     {
-        fillBar.fillAmount = keg.Amount / keg.MaxAmount;
+        // TODO: need to eliminate by reading keg value through simulator.
+        fillBar.fillAmount = keg.Amount(NullAmountVisitor.Instance) / keg.MaxAmount;
     }
 }

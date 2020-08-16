@@ -15,15 +15,23 @@ namespace Kegstand.Impl
         private FlowCalculator flowCalculator;
         public float MaxAmount { get; private set; }
         public float MinAmount { get; private set; }
-        public float Amount { get; private set; }
+
+        private Timestamp timestamp;
+        private float amount;
+        public float Amount(IAmountVisitor amountVisitor)
+        {
+            Assert.IsNotNull(amountVisitor);
+            return amountVisitor.CalculateCurrentAmount(amount, AggregateFlow, timestamp);
+        }
 
         private bool isDirtyAggregateFlow = true;
         private float cachedAggregateFlow;
 
         private bool isDirtyCurrentEvents = true;
+
         [NotNull]
-        private readonly List<TimedEvent> currentEvents = new List<TimedEvent>(); 
-        
+        private readonly List<TimedEvent> currentEvents = new List<TimedEvent>();
+
         public float AggregateFlow
         {
             get
@@ -52,7 +60,7 @@ namespace Kegstand.Impl
                 throw new ArgumentException("Argument should not be less than zero", nameof(delta));
             }
             
-            Amount = Mathf.Min(Amount + delta, MaxAmount);
+            amount = Mathf.Min(amount + delta, MaxAmount);
         }
 
         public void Decrement(float delta)
@@ -62,17 +70,18 @@ namespace Kegstand.Impl
                 throw new ArgumentException("Argument should not be less than zero", nameof(delta));
             }
             
-            Amount = Mathf.Max(Amount - delta, MinAmount);
+            amount = Mathf.Max(amount - delta, MinAmount);
         }
 
-        public int AppendCurrentEvents(TimedEventQueue queue)
+        public int AppendCurrentEvents(IAmountVisitor amountVisitor, TimedEventQueue queue)
         {
             Assert.IsNotNull(queue);
+            Assert.IsNotNull(amountVisitor);
             
             if (isDirtyCurrentEvents)
             {
                 isDirtyCurrentEvents = false;
-                CreateCurrentEvents(currentEvents, queue);
+                CreateCurrentEvents(amountVisitor, currentEvents, queue);
             }
             
             var args = new KegEventsChangedArgs(this, currentEvents.AsReadOnly());
@@ -80,36 +89,45 @@ namespace Kegstand.Impl
             return currentEvents.Count;
         }
 
-        private void CreateCurrentEvents([NotNull] List<TimedEvent> timedEvents, [NotNull]TimedEventQueue queue)
+        private void CreateCurrentEvents(
+            [NotNull] IAmountVisitor amountVisitor,
+            [NotNull] List<TimedEvent> timedEvents,
+            [NotNull] TimedEventQueue queue)
         {
             timedEvents.Clear();
             TimedEvent timedEvent;
-            if(CreateFillEvent(queue, out timedEvent))
+            if(CreateFillEvent(amountVisitor, queue, out timedEvent))
             {
                 timedEvents.Add(timedEvent);
             }
             
-            if (CreateEmptyEvent(queue, out timedEvent))
+            if (CreateEmptyEvent(amountVisitor, queue, out timedEvent))
             {
                 timedEvents.Add(timedEvent);
             }
         }
 
-        private bool CreateEmptyEvent([NotNull]TimedEventQueue queue, out TimedEvent timedEvent)
+        private bool CreateEmptyEvent(
+            [NotNull] IAmountVisitor amountVisitor,
+            [NotNull]TimedEventQueue queue,
+            out TimedEvent timedEvent)
         {
             timedEvent = null;
-            if (AggregateFlow >= 0 || Mathf.Approximately(Amount, MinAmount)) { return false; }
-            float timeToEmpty = (Amount - MinAmount) / -AggregateFlow;
+            if (AggregateFlow >= 0 || Mathf.Approximately(Amount(amountVisitor), MinAmount)) { return false; }
+            float timeToEmpty = (Amount(amountVisitor) - MinAmount) / -AggregateFlow;
             timedEvent = queue.EnqueueNewEventToBuffer(this, timeToEmpty, KegEvent.Emptied);
             return true;
         }
 
-        private bool CreateFillEvent([NotNull]TimedEventQueue queue, out TimedEvent timedEvent)
+        private bool CreateFillEvent(
+            [NotNull] IAmountVisitor amountVisitor,
+            [NotNull] TimedEventQueue queue,
+            out TimedEvent timedEvent)
         {
             timedEvent = null;
-            if (AggregateFlow <= 0 || Mathf.Approximately(Amount, MaxAmount)) { return false; }
+            if (AggregateFlow <= 0 || Mathf.Approximately(Amount(amountVisitor), MaxAmount)) { return false; }
             
-            float timeToFill = (MaxAmount - Amount) / AggregateFlow;
+            float timeToFill = (MaxAmount - Amount(amountVisitor)) / AggregateFlow;
             timedEvent = queue.EnqueueNewEventToBuffer(this, timeToFill, KegEvent.Filled);
             return true;
         }

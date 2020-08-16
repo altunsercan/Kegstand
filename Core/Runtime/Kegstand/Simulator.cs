@@ -98,26 +98,40 @@ namespace Kegstand
         }
     }
 
+    public class SimulatorFactory
+    {
+        public static Simulator<TimeSpan, TimeSpanClock> CreateDefault()
+        {
+            var amountVisitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.Zero));
+            return new Simulator<TimeSpan, TimeSpanClock>(amountVisitor, timeUnit=> TimeSpan.FromSeconds(timeUnit));
+        }
+    }
+    
     public class Simulator<TTimeValue, TClock> : Simulator 
         where TClock : class, Clock<TTimeValue>, new()
         where TTimeValue : IComparable<TTimeValue>
     {
         [NotNull] private readonly TempTimedEventQueue<TTimeValue> timedEventsScratchList;
+        [NotNull] private AmountVisitor<TTimeValue> amountVisitor;
 
         public readonly IReadOnlyList<TimedEvent<TTimeValue>> Events;
         public IReadOnlyList<Stand> Stands { get; }
 
         [NotNull] private readonly List<TimedEvent<TTimeValue>> events = new List<TimedEvent<TTimeValue>>();
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
-        
+
         public event Action<TimedEvent> EventTriggered;
+
 
         [NotNull]
         private readonly TClock clock;
-        
-        public Simulator(Func<float, TTimeValue> unitTimeConverter)
+
+        public Simulator(AmountVisitor<TTimeValue> amountVisitor, Func<float, TTimeValue> unitTimeConverter)
         {
+            Assert.IsNotNull(amountVisitor);
+            
             timedEventsScratchList = new TempTimedEventQueue<TTimeValue>(unitTimeConverter);
+            this.amountVisitor = amountVisitor;
             
             clock = new TClock();
             Events = events.AsReadOnly();
@@ -153,7 +167,7 @@ namespace Kegstand
             {
                 KegEntry kegEntry = kegs[kegIndex];
                 Keg keg = kegEntry.Keg;
-                keg.AppendCurrentEvents(timedEventsScratchList);
+                keg.AppendCurrentEvents(amountVisitor, timedEventsScratchList);
             }
 
             // TODO: Move sorting logic to the Queue

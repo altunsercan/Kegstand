@@ -1,4 +1,6 @@
-﻿namespace Kegstand.Impl
+﻿using System;
+
+namespace Kegstand.Impl
 {
     public interface Timestamp
     {
@@ -14,5 +16,14 @@
         {
             timeValue = time;
         }
+    }
+
+    public class TimeSpanTimestamp : Timestamp<TimeSpan>
+    {
+        public TimeSpanTimestamp(TimeSpan time) : base(time)
+        {
+        }
+        
+        public static implicit operator TimeSpanTimestamp(TimeSpan timeSpan) => new TimeSpanTimestamp(timeSpan); 
     }
 }
