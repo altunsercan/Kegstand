@@ -4,12 +4,13 @@ using UnityEngine.Assertions;
 
 namespace Kegstand.Impl
 {
-    public class AmountVisitor: IAmountVisitor
+    public abstract class AmountVisitor<TTimeValue>: IAmountVisitor
+        where TTimeValue : IComparable<TTimeValue>
     {
         [NotNull]
-        private Timestamp<TimeSpan> timestamp;
+        private Timestamp<TTimeValue> timestamp;
 
-        public AmountVisitor(Timestamp<TimeSpan> timestamp)
+        public AmountVisitor(Timestamp<TTimeValue> timestamp)
         {
             Assert.IsNotNull(timestamp);
             
@@ -25,13 +26,31 @@ namespace Kegstand.Impl
                 return recordedAmount;
             }
 
-            if (!(recordedTimestamp is Timestamp<TimeSpan> typedTimeStamp))
+            if (!(recordedTimestamp is Timestamp<TTimeValue> typedTimeStamp))
             {
-                throw new ArgumentException($"Invalid typed {nameof(Timestamp)} used as {nameof(recordedTimestamp)}", nameof(recordedTimestamp));
+                throw new ArgumentException($"Invalid typed {nameof(Timestamp)} expected {nameof(TTimeValue)}", nameof(recordedTimestamp));
             }
+            
+            TTimeValue currentTime = typedTimeStamp.Time;
+            TTimeValue anchorTime = timestamp.Time;
+            
+            var deltaTime = CalculateDeltaSeconds( ref currentTime, ref anchorTime);
+            return recordedAmount + currentFlow * deltaTime;
+        }
 
-            TimeSpan deltaTime = typedTimeStamp.Time - timestamp.Time;
-            return recordedAmount + currentFlow * deltaTime.Seconds;
+        protected abstract float CalculateDeltaSeconds(ref TTimeValue timeToCheck, ref TTimeValue anchorTime);
+    }
+
+    public class TimeSpanAmountVisitor : AmountVisitor<TimeSpan>
+    {
+        public TimeSpanAmountVisitor(Timestamp<TimeSpan> timestamp) : base(timestamp)
+        {
+        }
+
+        protected override float CalculateDeltaSeconds(ref TimeSpan timeToCheck, ref TimeSpan anchorTime)
+        {
+            return (float)(timeToCheck.TotalSeconds - anchorTime.TotalSeconds);
         }
     }
+        
 }

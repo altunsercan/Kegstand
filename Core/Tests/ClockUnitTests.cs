@@ -26,7 +26,7 @@ namespace Kegstand.Tests
         public void ShouldCalculateKegAmountBasedOnClock()
         {
             // Given
-            IAmountVisitor visitor = new AmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(0f)));
+            IAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(0f)));
             Timestamp currentTimestamp = new Timestamp<TimeSpan>(TimeSpan.FromSeconds(5f));
             
             float currentAmount = 0;
