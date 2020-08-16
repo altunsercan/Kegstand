@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
+using UnityEngine.Assertions;
 
 namespace Kegstand
 {
@@ -13,20 +15,27 @@ namespace Kegstand
     [ExcludeFromCodeCoverage] // Pure data class with no logic
     public class TimedEvent<TTimeValue> : TimedEvent where TTimeValue : IComparable<TTimeValue>
     {
-        public Keg Index { get; }
-        // TODO: Use ref return
-        public TTimeValue Time { get; }
+        [NotNull] public Keg Index { get; }
+        
+        [NotNull] private readonly TTimeValue time;
+        [NotNull] public ref readonly TTimeValue Time => ref time;
+
         public KegEvent Type { get; }
 
         public TimedEvent(Keg index, TTimeValue time, KegEvent type)
         {
+            Assert.IsNotNull(index);
+            Assert.AreNotEqual(default(TTimeValue), time);
+
             Index = index;
-            Time = time;
+            this.time = time;
             Type = type;
         }
 
         public bool IsPassed(Clock<TTimeValue> clock)
         {
+            Assert.IsNotNull(clock);
+            
             ref TTimeValue clockTime = ref clock.GetCurrentTimePassed();
 
             return clockTime.CompareTo(Time) >= 0;

@@ -36,7 +36,12 @@ namespace Kegstand.Tests
             }            
             
             // Then
-            Assert.That(simulator.Events, Is.Ordered.Ascending.By("Time"));                
+            var lastEvent = simulator.Events[0];
+            for (var index = 1; index < simulator.Events.Count; index++)
+            {
+                TimedEvent<TimeSpan> timedEvent = simulator.Events[index];
+                Assert.That(lastEvent.Time <= timedEvent.Time);
+            }                
         }
 
         [TestCase(1)]
