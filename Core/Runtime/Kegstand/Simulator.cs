@@ -27,7 +27,6 @@ namespace Kegstand
         public event Action<TimedEvent> EventTriggered;
 
         private readonly TClock clockObj;
-        private float clock;
         
         public Simulator()
         {
@@ -69,13 +68,14 @@ namespace Kegstand
 
         public void Update(float deltaTime)
         {
-            clock += deltaTime;
+            clockObj.Update(deltaTime); 
+            ref TimeSpan timePassed = ref clockObj.GetCurrentTimePassed();
             var i = 0;
             for (; i < events.Count; i++)
             {
                 TimedEvent timedEvent = events[i];
                 if(timedEvent==null) { return; }
-                if (timedEvent.Time > clock) { break; }
+                if (timedEvent.Time > timePassed.Seconds) { break; }
                 
                 EventTriggered?.Invoke(timedEvent);
             }
