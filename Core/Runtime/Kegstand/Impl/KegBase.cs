@@ -143,19 +143,6 @@ namespace Kegstand.Impl
             isDirtyCurrentEvents = true;
         }
 
-        public void Update(float deltaTime)
-        {
-            var delta = flowCalculator.CalculateAggregateFlow(this);
-            if (delta > 0)
-            {
-                Increment(delta*deltaTime);
-            }
-            else
-            {
-                Decrement(-delta*deltaTime);
-            }
-        }
-
         [Obsolete("Created for testing should be refactored to remove")]
         public void InvalidateFlowCache()
         {
