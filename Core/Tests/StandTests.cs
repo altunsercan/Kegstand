@@ -87,6 +87,24 @@ namespace Kegstand.Tests
                     .And.Some.Matches<TapEntry>(entry=>entry.Key == uniqueObj2));
         }
         
-        
+        [Test]
+        public void ShouldNotRegisterTapsWithoutUniqueId()
+        {
+            // Given
+            Tap tap = Substitute.For<Tap>();
+            Tap tap2 = Substitute.For<Tap>();
+            object uniqueObj = new object();
+
+            standBuilder.AddTap(uniqueObj, tap);
+            standBuilder.AddTap(uniqueObj, tap2);
+            
+            // When
+            Stand stand = standBuilder.Build();
+            IReadOnlyList<TapEntry> taps = stand.Taps;
+            
+            // Then
+            Assert.AreEqual(tap, stand.GetTap(uniqueObj));
+            Assert.AreNotEqual(tap2, stand.GetTap(uniqueObj));
+        }
     }
 }
