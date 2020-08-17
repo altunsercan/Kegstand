@@ -9,12 +9,12 @@ namespace Kegstand.Tests
 {
     public class KegUnitTests
     {
-        private Impl.KegBase.Builder<Impl.KegBase> kegBuilder; 
+        private KegBase.Builder<KegBase> kegBuilder; 
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
-            kegBuilder = new Impl.KegBase.Builder<Impl.KegBase>(flowCalculator: calculator);
+            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator: calculator);
         }
         
         [Test]
@@ -24,7 +24,7 @@ namespace Kegstand.Tests
         public void CanIncrement(float maxAmount, float startingAmount, float increment, float result )
         {
             // Given
-            Impl.KegBase keg = kegBuilder.Max(maxAmount).StartWith(startingAmount).Build();
+            KegBase keg = kegBuilder.Max(maxAmount).StartWith(startingAmount).Build();
 
             // When
             keg.Increment(increment);
@@ -37,7 +37,7 @@ namespace Kegstand.Tests
         public void CannotIncrementWithNegative()
         {
             // Given
-            Impl.KegBase keg = kegBuilder.StartWith(50f).Build();
+            KegBase keg = kegBuilder.StartWith(50f).Build();
 
             // When & Then
             Assert.Throws<ArgumentException>(() => keg.Increment(-10f));
@@ -49,7 +49,7 @@ namespace Kegstand.Tests
         public void CanDecrementFluid(float minAmount, float startingAmount, float decrement, float result )
         {
             // Given
-            Impl.KegBase keg = kegBuilder.Min(minAmount).StartWith(startingAmount).Build();
+            KegBase keg = kegBuilder.Min(minAmount).StartWith(startingAmount).Build();
 
             // When
             keg.Decrement(decrement);
@@ -62,7 +62,7 @@ namespace Kegstand.Tests
         public void CannotDecrementWithNegative()
         {
             // Given
-            Impl.KegBase keg = kegBuilder.StartWith(50f).Build(); 
+            KegBase keg = kegBuilder.StartWith(50f).Build(); 
             
             // When & Then
             Assert.Throws<ArgumentException>(() => keg.Decrement(-10f));
@@ -74,7 +74,7 @@ namespace Kegstand.Tests
             // Given
             var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(10f);
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
             
             // When
             var value =keg.AggregateFlow;
@@ -90,7 +90,7 @@ namespace Kegstand.Tests
             // Given
             var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(10f);
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
                 
             // When
             var value =keg.AggregateFlow;
@@ -110,7 +110,7 @@ namespace Kegstand.Tests
 
             TimedEventQueue list = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
             
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).Build();
             
             // When
             int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
@@ -131,7 +131,7 @@ namespace Kegstand.Tests
 
             TimedEventQueue list = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
 
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(50f).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(50f).Build();
             
             // When
             int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
@@ -155,7 +155,7 @@ namespace Kegstand.Tests
 
             TimedEventQueue list = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
 
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(startingAmount).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(startingAmount).Build();
             
             // When
             int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
@@ -175,7 +175,7 @@ namespace Kegstand.Tests
             var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns((_)=>flow);
             
-            Impl.KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(0f).Build();
+            KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(0f).Build();
 
             // When
             TimedEventQueue events = new TempTimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
@@ -199,6 +199,31 @@ namespace Kegstand.Tests
             void OnEventsChanged(KegEventsChangedArgs args)
             {
                 kegEventsChangedArgs = args;
+            }
+        }
+
+        [Test]
+        public void ShouldCalculateAggregateFlow()
+        {
+            // Given
+            var calculator = new FlowCalculatorImpl();
+            Keg keg = kegBuilder.StartWith(0f).Build();
+            keg.AddTap(MakeTap(1f));
+            keg.AddTap(MakeTap(2f));
+            keg.AddTap(null);
+            keg.AddTap(MakeTap(2f));
+            
+            // When
+            float aggregateFlow = calculator.CalculateAggregateFlow(keg);
+
+            // Then
+            Assert.AreEqual(5f, aggregateFlow);
+
+            Tap MakeTap(float flow)
+            {
+                var tap = Substitute.For<Tap>();
+                tap.FlowAmount.Returns(flow);
+                return tap;
             }
         }
     }
