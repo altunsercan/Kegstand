@@ -108,18 +108,18 @@ namespace Kegstand.Tests
             var calculator = Substitute.For<FlowCalculator>();
             calculator.CalculateAggregateFlow(Arg.Any<Keg>()).Returns(1f);
 
-            TimedEventQueue list = new TimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
+            TimedEventQueue queue = new TimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
             
             KegBase keg = kegBuilder.WithCalculator(calculator).Build();
             
             // When
-            int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, list);
+            int eventCount = keg.AppendCurrentEvents(NullAmountVisitor.Instance, queue);
 
             // Then
             Assert.Greater(eventCount, 0);
-            Assert.AreEqual(eventCount, list.Count);
-            Assert.That(list, Has.Some.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Filled));
-            Assert.That(list, Has.None.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Emptied));
+            Assert.AreEqual(eventCount, queue.Count);
+            Assert.That(queue, Has.Some.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Filled));
+            Assert.That(queue, Has.None.Matches<TimedEvent>(evt=>evt.Type == KegEvent.Emptied));
         }
 
         [Test]
@@ -178,9 +178,9 @@ namespace Kegstand.Tests
             KegBase keg = kegBuilder.WithCalculator(calculator).StartWith(0f).Build();
 
             // When
-            TimedEventQueue events = new TimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
+            TimedEventQueue<TimeSpan> events = new TimedEventQueue<TimeSpan>(timeUnit=>TimeSpan.FromSeconds(timeUnit)); 
             keg.AppendCurrentEvents(NullAmountVisitor.Instance, events);
-            TimeSpan previousTime = events.Cast<TimedEvent<TimeSpan>>()
+            TimeSpan previousTime = events
                 .Where(evt => evt.Type == KegEvent.Filled)
                 .Select(evt=>evt.Time).FirstOrDefault();
             
