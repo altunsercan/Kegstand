@@ -117,7 +117,7 @@ namespace Kegstand
         public readonly IReadOnlyList<TimedEvent<TTimeValue>> Events;
         public IReadOnlyList<Stand> Stands { get; }
 
-        [NotNull] private readonly List<TimedEvent<TTimeValue>> events = new List<TimedEvent<TTimeValue>>();
+        [NotNull] [ItemNotNull] private readonly List<TimedEvent<TTimeValue>> events = new List<TimedEvent<TTimeValue>>();
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
 
         public event Action<TimedEvent> EventTriggered;
@@ -186,7 +186,6 @@ namespace Kegstand
             for (; i < events.Count; i++)
             {
                 TimedEvent<TTimeValue> timedEvent = events[i];
-                if(timedEvent==null) { return; }
                 
                 if (!timedEvent.IsPassed(clock)) { break; }
                 
@@ -222,9 +221,7 @@ namespace Kegstand
         private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent<TTimeValue> changedEvt)
         {
             TimedEvent existingEvt = events[index];
-
-            if (existingEvt == null) { return false; }
-
+            
             if (existingEvt.Index == keg && existingEvt.Type == changedEvt.Type)
             {
                 events[index] = changedEvt;
@@ -234,12 +231,8 @@ namespace Kegstand
             return false;
         }
 
-        private static int SortEventsByTimeComparison(TimedEvent<TTimeValue> x, TimedEvent<TTimeValue> y)
+        private static int SortEventsByTimeComparison([NotNull]TimedEvent<TTimeValue> x, [NotNull]TimedEvent<TTimeValue> y)
         {
-            if (x == null && y == null) { return 0; }
-            if (x == null) { return -1; }
-            if (y == null) { return 1; }
-            
             return x.Time.CompareTo(y.Time);
         }
     }
