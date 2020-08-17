@@ -1,5 +1,6 @@
 ﻿using System;
 using Kegstand.Impl;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace Kegstand.Tests
@@ -23,20 +24,36 @@ namespace Kegstand.Tests
         }
 
         [Test]
-        public void ShouldCalculateKegAmountBasedOnClock()
+        [TestCase(5f, 2f)]
+        [TestCase(5f, 0f)]
+        [TestCase(0f, 2f)]
+        public void ShouldCalculateKegAmountBasedOnClock(float timePassed, float flow)
         {
             // Given
-            IAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(5f)));
+            IAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(timePassed)));
             Timestamp lastRecordedTimestamp = new Timestamp<TimeSpan>(TimeSpan.FromSeconds(0f));
             
             float currentAmount = 0;
-            float flow = 2f;
             
             // When
             var calculatedAmount = visitor.CalculateCurrentAmount(currentAmount, flow, lastRecordedTimestamp);
 
             // Then
-            Assert.AreEqual(10f, calculatedAmount);   
+            Assert.AreEqual((timePassed * flow), calculatedAmount);   
+        }
+        
+        
+        [Test]
+        public void ShouldNotCalculateKegAmountWithInvalidTimestamp()
+        {
+            // Given
+            IAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(5f)));
+            Timestamp lastRecordedTimestamp = Substitute.For<Timestamp>();
+            
+            float currentAmount = 0;
+            
+            // When & Then
+            Assert.Throws<ArgumentException>(() =>  visitor.CalculateCurrentAmount(currentAmount, 1f, lastRecordedTimestamp));
         }
     }
 }
