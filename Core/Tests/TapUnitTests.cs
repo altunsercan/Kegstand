@@ -1,4 +1,5 @@
-﻿using Kegstand.Impl;
+﻿using System;
+using Kegstand.Impl;
 using NUnit.Framework;
 
 namespace Kegstand.Tests
@@ -22,7 +23,7 @@ namespace Kegstand.Tests
             builder = new Impl.KegBase.Builder<Impl.KegBase>();
             builder.WithCalculator(calculator);
         }
-
+        
         [Test]
         [TestCase(1f)]
         [TestCase(-1f)]
@@ -33,11 +34,13 @@ namespace Kegstand.Tests
             Impl.KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             
-            // When
-            keg.Update(10f);
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            
+            // When & Then
+            //keg.Update(10f);
 
-            // Then
-            Assert.AreEqual(50f+10f*flowAmount, keg.Amount);
+            // 
+            Assert.AreEqual(50f+10f*flowAmount, keg.Amount(visitor));
         }
 
 
@@ -51,11 +54,14 @@ namespace Kegstand.Tests
             keg.AddTap(tap);
             keg.AddTap(tap);
             
-            // When
-            keg.Update(10f);
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            
+            // When & Then
+            // keg.Update(10f);
 
-            // Then
-            Assert.AreEqual(60f, keg.Amount);
+            //
+            Assert.AreEqual(60f, keg.Amount(visitor));
         }
+        
     }
 }

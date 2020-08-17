@@ -1,31 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Kegstand.Impl;
 using UnityEngine.Assertions;
 
 namespace Kegstand
 {
-    public class Simulator
+    public interface Simulator
     {
-        [NotNull] private static readonly List<TimedEvent> TimedEventsScratchList = new List<TimedEvent>();
-        
-        public readonly IReadOnlyList<TimedEvent> Events;
-        public readonly IReadOnlyList<Stand> Stands;
-        
-        [NotNull] private readonly List<TimedEvent> events = new List<TimedEvent>();
+        IReadOnlyList<Stand> Stands { get; }
+        event Action<TimedEvent> EventTriggered;
+        bool AddEvent(TimedEvent timedEvent);
+        void Register(Stand stand);
+        void Update(float deltaTime);
+    }
+
+    public class Simulator<TTimeValue, TClock> : Simulator 
+        where TClock : class, Clock<TTimeValue>, new()
+        where TTimeValue : IComparable<TTimeValue>
+    {
+        [NotNull] private readonly TimedEventQueue<TTimeValue> timedEventsScratchList;
+        [NotNull] private AmountVisitor<TTimeValue> amountVisitor;
+
+        public readonly IReadOnlyList<TimedEvent<TTimeValue>> Events;
+        public IReadOnlyList<Stand> Stands { get; }
+
+        [NotNull] [ItemNotNull] private readonly List<TimedEvent<TTimeValue>> events = new List<TimedEvent<TTimeValue>>();
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
-        
+
         public event Action<TimedEvent> EventTriggered;
 
-        private float clock = 0f;
 
-        public Simulator()
+        [NotNull]
+        private readonly TClock clock;
+
+        public Simulator(TimedEventQueue<TTimeValue> eventQueue, AmountVisitor<TTimeValue> amountVisitor)
         {
+            Assert.IsNotNull(eventQueue);
+            Assert.IsNotNull(amountVisitor);
+
+            timedEventsScratchList = eventQueue;
+            this.amountVisitor = amountVisitor;
+            
+            clock = new TClock();
             Events = events.AsReadOnly();
             Stands = stands.AsReadOnly();
         }
 
-        public void AddEvent(TimedEvent timedEvent)
+        public bool AddEvent(TimedEvent timedEvent)
+        {
+            if (!(timedEvent is TimedEvent<TTimeValue> validTimeEvent)) return false;
+            
+            AddEvent(validTimeEvent);
+            return true;
+        }
+        
+        private void AddEvent(TimedEvent<TTimeValue> timedEvent)
         {
             events.Add(timedEvent);
             events.Sort(SortEventsByTimeComparison);
@@ -46,25 +76,27 @@ namespace Kegstand
             {
                 KegEntry kegEntry = kegs[kegIndex];
                 Keg keg = kegEntry.Keg;
-                keg.AppendCurrentEvents(TimedEventsScratchList);
+                keg.AppendCurrentEvents(amountVisitor, timedEventsScratchList);
             }
 
-            events.AddRange(TimedEventsScratchList);
+            // TODO: Move sorting logic to the Queue
+            events.AddRange(timedEventsScratchList);
             events.Sort(SortEventsByTimeComparison);
-            TimedEventsScratchList.Clear();
+            timedEventsScratchList.Clear();
             
             stand.EventsChanged += OnKegEventsChanged;
         }
 
         public void Update(float deltaTime)
         {
-            clock += deltaTime;
+            clock.Update(deltaTime); 
+            
             var i = 0;
             for (; i < events.Count; i++)
             {
-                TimedEvent timedEvent = events[i];
-                if(timedEvent==null) { return; }
-                if (timedEvent.Time > clock) { break; }
+                TimedEvent<TTimeValue> timedEvent = events[i];
+                
+                if (!timedEvent.IsPassed(clock)) { break; }
                 
                 EventTriggered?.Invoke(timedEvent);
             }
@@ -79,8 +111,8 @@ namespace Kegstand
             
             for (var changeIndex = 0; changeIndex < changes.Count; changeIndex++)
             {
-                TimedEvent changedEvt = changeArgs.Changes[changeIndex];
-                if (changedEvt == null) { continue; }
+                TimedEvent evt = changeArgs.Changes[changeIndex];
+                if (!(evt is TimedEvent<TTimeValue> changedEvt)) { continue; }
                 
                 var isNewEvent = true;
                 for (var index = 0; isNewEvent && (index < events.Count); index++)
@@ -95,12 +127,10 @@ namespace Kegstand
             }
         }
 
-        private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent changedEvt)
+        private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent<TTimeValue> changedEvt)
         {
             TimedEvent existingEvt = events[index];
-
-            if (existingEvt == null) { return false; }
-
+            
             if (existingEvt.Index == keg && existingEvt.Type == changedEvt.Type)
             {
                 events[index] = changedEvt;
@@ -110,42 +140,9 @@ namespace Kegstand
             return false;
         }
 
-        private static int SortEventsByTimeComparison(TimedEvent x, TimedEvent y)
+        private static int SortEventsByTimeComparison([NotNull]TimedEvent<TTimeValue> x, [NotNull]TimedEvent<TTimeValue> y)
         {
-            if (x == null && y == null) { return 0; }
-            if (x == null) { return -1; }
-            if (y == null) { return 1; }
-            
-            return (Math.Abs(x.Time - y.Time) < float.Epsilon) ? 0 : (x.Time > y.Time) ? 1 : -1;
-        }
-        
-        private class KegEventsChangeObserver : IObserver<KegEventsChangedArgs>
-        {
-            [NotNull] private readonly Simulator simulator;
-
-            public KegEventsChangeObserver(Simulator simulator)
-            {
-                Assert.IsNotNull(simulator);
-                this.simulator = simulator;
-            }
-
-            public void OnNext(KegEventsChangedArgs value)
-            {
-                // Auto-mocked NSubstitute will return null
-                if (value == null){ return; }
-                
-                simulator.OnKegEventsChanged(value);
-            }
-            
-            public void OnError(Exception error)
-            {
-                throw error;
-            }
-            
-            public void OnCompleted()
-            {
-                // Ignore because stream can be completed when a stand is unregistered
-            }
+            return x.Time.CompareTo(y.Time);
         }
     }
 }

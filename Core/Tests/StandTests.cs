@@ -8,16 +8,16 @@ namespace Kegstand.Tests
 {
     public class StandTests
     {
-        private Impl.KegBase.Builder<Impl.KegBase> kegBuilder;
-        private Impl.StandBase.Builder standBuilder;
+        private KegBase.Builder<KegBase> kegBuilder;
+        private StandBase.Builder standBuilder;
 
         [SetUp]
         public void Setup()
         {
             var calculator = new FlowCalculatorImpl();
-            kegBuilder = new Impl.KegBase.Builder<Impl.KegBase>(flowCalculator:calculator);
+            kegBuilder = new KegBase.Builder<KegBase>(flowCalculator:calculator);
             
-            standBuilder = new Impl.StandBase.Builder();
+            standBuilder = new StandBase.Builder();
         }
         
         [Test]
@@ -87,6 +87,42 @@ namespace Kegstand.Tests
                     .And.Some.Matches<TapEntry>(entry=>entry.Key == uniqueObj2));
         }
         
+        [Test]
+        public void ShouldNotRegisterTapsWithoutUniqueId()
+        {
+            // Given
+            Tap tap = Substitute.For<Tap>();
+            Tap tap2 = Substitute.For<Tap>();
+            object uniqueObj = new object();
+
+            standBuilder.AddTap(uniqueObj, tap);
+            standBuilder.AddTap(uniqueObj, tap2);
+            
+            // When
+            Stand stand = standBuilder.Build();
+            IReadOnlyList<TapEntry> taps = stand.Taps;
+            
+            // Then
+            Assert.AreEqual(tap, stand.GetTap(uniqueObj));
+            Assert.AreNotEqual(tap2, stand.GetTap(uniqueObj));
+        }
+
+        [Test]
+        public void CanCreateFromDefinition()
+        {
+            // Given
+            StandDefinition definition = new StandDefinition();
+            definition.Kegs.Add(new KegEntry(new object(), Substitute.For<Keg>()));
+            definition.Taps.Add(new TapEntry(new object(), Substitute.For<Tap>()));
+            
+            // When
+            standBuilder.CopyDefinition(definition);
+            var stand = standBuilder.Build();
+
+            // Then
+            Assert.That(stand.Kegs.Count == 1);
+            Assert.That(stand.Taps.Count == 1);
+        }
         
     }
 }

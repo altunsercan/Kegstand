@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Kegstand.Impl;
 using Kegstand.Unity.Impl;
@@ -18,7 +19,7 @@ namespace Kegstand.Unity
         
         public void Awake()
         {
-            Simulator = new Simulator();
+            Simulator = SimulatorFactory.CreateDefault();
         }
 
         public void Initialize(IStandDefinitionBuilder builder = null)

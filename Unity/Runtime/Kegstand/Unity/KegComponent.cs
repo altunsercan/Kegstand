@@ -36,7 +36,8 @@ namespace Kegstand.Unity
 
         public float MaxAmount => wrappedKeg?.MaxAmount??maxAmount; // Pass through serialized value pre initialization
         public float MinAmount => wrappedKeg?.MinAmount??minAmount; // Pass through serialized value pre initialization
-        public float Amount => wrappedKeg?.Amount??amount;  // Pass through serialized value pre initialization
+        public float Amount(IAmountVisitor amountVisitor) => wrappedKeg?.Amount(amountVisitor) ?? amount;
+
         public float AggregateFlow
         {
             get
@@ -67,10 +68,11 @@ namespace Kegstand.Unity
             wrappedKeg.Decrement(decrement);
         }
 
-        public int AppendCurrentEvents(List<TimedEvent> list)
+        public int AppendCurrentEvents(IAmountVisitor amountVisitor, TimedEventQueue queue)
         {
             Assert.IsNotNull(wrappedKeg);
-            return wrappedKeg.AppendCurrentEvents(list);
+            Assert.IsNotNull(amountVisitor);
+            return wrappedKeg.AppendCurrentEvents(amountVisitor, queue);
         }
 
         public void AddTap(Tap tap)

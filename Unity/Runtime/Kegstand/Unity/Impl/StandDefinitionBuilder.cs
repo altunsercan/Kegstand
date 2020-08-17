@@ -67,7 +67,7 @@ namespace Kegstand.Unity.Impl
                     var kegBuilder = new KegBase.Builder<KegBase>();
                     kegBuilder.Max(keg.MaxAmount);
                     kegBuilder.Min(keg.MinAmount);
-                    kegBuilder.StartWith(keg.Amount);
+                    kegBuilder.StartWith(keg.Amount(NullAmountVisitor.Instance));
                     kegBuilder.WithCalculator(flowCalculator);
                     KegBase pureKeg = kegBuilder.Build();
                     kegWrapper.SetWrappedObject(pureKeg);

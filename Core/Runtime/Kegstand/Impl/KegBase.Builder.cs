@@ -47,7 +47,7 @@ namespace Kegstand.Impl
             {
                 var keg = new T();
                 keg.flowCalculator = flowCalculator;
-                keg.Amount = startAmount;
+                keg.amount = startAmount;
                 keg.MinAmount = minAmount;
                 keg.MaxAmount = maxAmount;
                 return keg;
