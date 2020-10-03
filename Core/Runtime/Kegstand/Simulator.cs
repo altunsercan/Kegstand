@@ -15,7 +15,7 @@ namespace Kegstand
         void Update(float deltaTime);
     }
 
-    public class Simulator<TTimeValue, TClock> : Simulator 
+    public partial class Simulator<TTimeValue, TClock> : Simulator 
         where TClock : class, Clock<TTimeValue>, new()
         where TTimeValue : IComparable<TTimeValue>
     {

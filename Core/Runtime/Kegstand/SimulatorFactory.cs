@@ -7,9 +7,12 @@ namespace Kegstand
     {
         public static Simulator<TimeSpan, TimeSpanClock> CreateDefault()
         {
+            var builder = new Simulator<TimeSpan, TimeSpanClock>.Builder();
+
             var eventQueue = new TimedEventQueue<TimeSpan>(timeUnit => TimeSpan.FromSeconds(timeUnit));
             var amountVisitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.Zero));
-            return new Simulator<TimeSpan, TimeSpanClock>(eventQueue, amountVisitor);
+            
+            return builder.Build(eventQueue, amountVisitor);
         }
     }
 }
