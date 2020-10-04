@@ -147,6 +147,37 @@ namespace Kegstand.Tests
         }
 
         [Test]
+        public void ShouldNotifyKegFillChanges()
+        {
+            // Given
+            var fillDispatcher = Substitute.ForPartsOf<FillUpdateDispatcher>();
+
+            var builder = new Simulator<TimeSpan, TimeSpanClock>.Builder();
+            builder.WithFillDispatcher(fillDispatcher);
+            Simulator<TimeSpan, TimeSpanClock> simulator = SimulatorFactory.CreateDefault(builder);
+            
+            simulator.AddEvent(new TimedEvent<TimeSpan>( Substitute.For<Keg>(), TimeSpan.FromSeconds(0.5f), KegEvent.Filled ));
+            
+            var eventTriggerDelegate = Substitute.For<Action<TimedEvent>>();
+            simulator.EventTriggered += eventTriggerDelegate;
+            
+            var clockDelegate = Substitute.For<Action>();
+            simulator.ClockTicked += clockDelegate;
+            
+            // When
+            simulator.Update(1f);
+            
+            // Then
+            Received.InOrder(() =>
+            {
+                eventTriggerDelegate.Invoke(Arg.Any<TimedEvent>());
+                fillDispatcher.DispatchUpdate(Arg.Any<IAmountVisitor>());
+                clockDelegate.Invoke();
+            });
+        }
+        
+
+        [Test]
         public void ShouldRescheduleEventsOnKegEventChange()
         {
             // Given

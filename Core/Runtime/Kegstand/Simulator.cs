@@ -10,6 +10,7 @@ namespace Kegstand
     {
         IReadOnlyList<Stand> Stands { get; }
         event Action<TimedEvent> EventTriggered;
+        event Action ClockTicked;
         bool AddEvent(TimedEvent timedEvent);
         void Register(Stand stand);
         void Update(float deltaTime);
@@ -21,6 +22,7 @@ namespace Kegstand
     {
         [NotNull] private readonly TimedEventQueue<TTimeValue> timedEventsScratchList;
         [NotNull] private AmountVisitor<TTimeValue> amountVisitor;
+        [NotNull] private FillUpdateDispatcher fillUpdateDispatcher;
 
         public readonly IReadOnlyList<TimedEvent<TTimeValue>> Events;
         public IReadOnlyList<Stand> Stands { get; }
@@ -29,12 +31,13 @@ namespace Kegstand
         [NotNull] private readonly List<Stand> stands = new List<Stand>();
 
         public event Action<TimedEvent> EventTriggered;
+        public event Action ClockTicked;
 
 
         [NotNull]
         private readonly TClock clock;
 
-        public Simulator(TimedEventQueue<TTimeValue> eventQueue, AmountVisitor<TTimeValue> amountVisitor)
+        private Simulator(TimedEventQueue<TTimeValue> eventQueue, AmountVisitor<TTimeValue> amountVisitor)
         {
             Assert.IsNotNull(eventQueue);
             Assert.IsNotNull(amountVisitor);
@@ -91,16 +94,28 @@ namespace Kegstand
         {
             clock.Update(deltaTime); 
             
+            ProcessEvents();
+
+            fillUpdateDispatcher.DispatchUpdate(amountVisitor);
+            
+            ClockTicked?.Invoke();
+        }
+
+        private void ProcessEvents()
+        {
             var i = 0;
             for (; i < events.Count; i++)
             {
                 TimedEvent<TTimeValue> timedEvent = events[i];
-                
-                if (!timedEvent.IsPassed(clock)) { break; }
-                
+
+                if (!timedEvent.IsPassed(clock))
+                {
+                    break;
+                }
+
                 EventTriggered?.Invoke(timedEvent);
             }
-            
+
             events.RemoveRange(0, i);
         }
 
