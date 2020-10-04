@@ -7,7 +7,8 @@ using UnityEngine.Assertions;
 namespace Kegstand.Impl
 {
     public delegate void KegEventsChangedDelegate([NotNull] KegEventsChangedArgs changes);
-
+    public delegate void KegFillChangedDelegate([NotNull] KegFillChangedArgs args);
+    
     public partial class KegBase : Keg
     {
         public event KegEventsChangedDelegate EventsChanged;

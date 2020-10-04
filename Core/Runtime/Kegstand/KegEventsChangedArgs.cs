@@ -18,4 +18,17 @@ namespace Kegstand
             Changes = changes;
         }
     }
+
+    public class KegFillChangedArgs
+    {
+        [NotNull] public readonly Keg Keg;
+        [NotNull] public readonly float FillAmount;
+        
+        public KegFillChangedArgs(Keg keg, float fillAmount)
+        {
+            Keg = keg;
+            FillAmount = fillAmount;
+        }
+        
+    }
 }
