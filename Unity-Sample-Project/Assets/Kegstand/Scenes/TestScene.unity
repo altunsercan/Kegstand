@@ -242,9 +242,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 89638537}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c315632241c97444c9c35d2353882007, type: 3}
+  m_Script: {fileID: 11500000, guid: 64f40cd944d249941b9ade688fa5e826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulation: {fileID: 2022710874}
   stand: {fileID: 1084039575}
   id: growth
   fillBar: {fileID: 2012363373}
@@ -804,9 +805,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1596531752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c315632241c97444c9c35d2353882007, type: 3}
+  m_Script: {fileID: 11500000, guid: 64f40cd944d249941b9ade688fa5e826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulation: {fileID: 2022710874}
   stand: {fileID: 1084039575}
   id: growth
   fillBar: {fileID: 1431675555}
@@ -1110,9 +1112,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2133926313}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c315632241c97444c9c35d2353882007, type: 3}
+  m_Script: {fileID: 11500000, guid: 64f40cd944d249941b9ade688fa5e826, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulation: {fileID: 2022710874}
   stand: {fileID: 1084039575}
   id: water
   fillBar: {fileID: 60408289}
