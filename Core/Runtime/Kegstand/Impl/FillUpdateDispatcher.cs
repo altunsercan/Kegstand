@@ -29,5 +29,10 @@ namespace Kegstand.Impl
             KegFillChangedArgs args = new KegFillChangedArgs(keg, amount);
             FillChanged?.Invoke(args);
         }
+
+        public void Untrack(Keg keg)
+        {
+            trackedKegs.Remove(keg);
+        }
     }
 }

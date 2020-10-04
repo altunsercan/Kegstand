@@ -8,7 +8,7 @@ namespace Kegstand.Tests
     {
 
         [Test]
-        public void ShouldUpdateTrackedKegs()
+        public void ShouldUpdateOnlyTrackedKegs()
         {
             // Given
             var testFillAmount = 12345;
@@ -25,13 +25,13 @@ namespace Kegstand.Tests
             // When
             dispatcher.Track(keg);
             dispatcher.DispatchUpdate(visitor);
+            dispatcher.DispatchUpdate(visitor);
+            dispatcher.Untrack(keg);
+            dispatcher.DispatchUpdate(visitor);
 
             // Then
-            fillChangedDelegate.Received().Invoke(Arg.Is<KegFillChangedArgs>(arg=>arg.FillAmount == testFillAmount));
-            keg.Received().Amount(visitor);
+            fillChangedDelegate.Received(2).Invoke(Arg.Is<KegFillChangedArgs>(arg=>arg.FillAmount == testFillAmount));
+            keg.Received(2).Amount(visitor);
         }
-
-        
-        
     }
 }
