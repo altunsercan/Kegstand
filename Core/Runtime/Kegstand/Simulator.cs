@@ -33,19 +33,22 @@ namespace Kegstand
         public event Action<TimedEvent> EventTriggered;
         public event Action ClockTicked;
 
-
         [NotNull]
-        private readonly TClock clock;
+        private readonly Clock<TTimeValue> clock;
 
-        private Simulator(TimedEventQueue<TTimeValue> eventQueue, AmountVisitor<TTimeValue> amountVisitor)
+        private Simulator(
+            Clock<TTimeValue> clock,
+            TimedEventQueue<TTimeValue> eventQueue,
+            AmountVisitor<TTimeValue> amountVisitor)
         {
+            Assert.IsNotNull(clock);
             Assert.IsNotNull(eventQueue);
             Assert.IsNotNull(amountVisitor);
 
             timedEventsScratchList = eventQueue;
             this.amountVisitor = amountVisitor;
-            
-            clock = new TClock();
+
+            this.clock = clock;
             Events = events.AsReadOnly();
             Stands = stands.AsReadOnly();
         }

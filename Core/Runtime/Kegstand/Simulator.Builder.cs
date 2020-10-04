@@ -15,9 +15,9 @@ namespace Kegstand
                 return this;
             }
             
-            public Simulator<TTimeValue, TClock> Build(TimedEventQueue<TTimeValue> queueImplementation, AmountVisitor<TTimeValue> visitorImplementation )
+            public Simulator<TTimeValue, TClock> Build(Clock<TTimeValue> clock, TimedEventQueue<TTimeValue> queueImplementation, AmountVisitor<TTimeValue> visitorImplementation )
             {
-                var simulator = new Simulator<TTimeValue, TClock>(queueImplementation, visitorImplementation);
+                var simulator = new Simulator<TTimeValue, TClock>(clock, queueImplementation, visitorImplementation);
                 simulator.fillUpdateDispatcher = fillUpdateDispatcher ?? new FillUpdateDispatcher();
                 
                 return simulator;
