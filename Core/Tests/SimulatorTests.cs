@@ -179,15 +179,16 @@ namespace Kegstand.Tests
         [Test]
         public void ShouldUpdateVisitorTimestampOnUpdate()
         {
+            float timePassed = 1f;
+            
             // Given
-            var builder = new Simulator<TimeSpan, TimeSpanClock>.Builder();
-            var clock = Substitute.For<Clock<TimeSpan>>();
-            var eventQueue = Substitute.For<TimedEventQueue<TimeSpan>>();
-            var amountVisitor = Substitute.For<TimeSpanAmountVisitor>();
-            Simulator<TimeSpan, TimeSpanClock> simulator = builder.Build(clock, eventQueue, amountVisitor);
+            var builder = SimulatorFactory.CreateDefaultBuilder();
+            var amountVisitor = Substitute.ForPartsOf<TimeSpanAmountVisitor>(new Timestamp<TimeSpan>(TimeSpan.Zero));
+            builder.WithVisitor(amountVisitor);
+            Simulator<TimeSpan, TimeSpanClock> simulator = builder.Build();
             
             // When
-            simulator.Update(1f);
+            simulator.Update(timePassed);
             
             // Then
             amountVisitor.Received().SetCurrentTimestamp(Arg.Any<Timestamp>());

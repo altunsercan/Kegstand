@@ -1,5 +1,6 @@
 ﻿using System;
 using Kegstand.Impl;
+using UnityEngine.Assertions;
 
 namespace Kegstand
 {
@@ -8,16 +9,41 @@ namespace Kegstand
         public class Builder
         {
             private FillUpdateDispatcher fillUpdateDispatcher;
+            private Clock<TTimeValue> clock;
+            private TimedEventQueue<TTimeValue> queue;
+            private AmountVisitor<TTimeValue> visitor;
 
             internal Builder WithFillDispatcher(FillUpdateDispatcher dispatcher)
             {
                 fillUpdateDispatcher = dispatcher;
                 return this;
             }
-            
-            public Simulator<TTimeValue, TClock> Build(Clock<TTimeValue> clock, TimedEventQueue<TTimeValue> queueImplementation, AmountVisitor<TTimeValue> visitorImplementation )
+
+            public Builder WithQueue(TimedEventQueue<TTimeValue> queueImplementation)
             {
-                var simulator = new Simulator<TTimeValue, TClock>(clock, queueImplementation, visitorImplementation);
+                this.queue = queueImplementation;
+                return this;
+            }
+            
+            public Builder WithClock(Clock<TTimeValue> clock)
+            {
+                this.clock = clock;
+                return this;
+            }
+
+            public Builder WithVisitor(AmountVisitor<TTimeValue> visitor)
+            {
+                this.visitor = visitor;
+                return this;
+            }
+
+            public Simulator<TTimeValue, TClock> Build()
+            {
+                Assert.IsNotNull(queue);
+                Assert.IsNotNull(visitor);
+                Assert.IsNotNull(clock);
+                
+                var simulator = new Simulator<TTimeValue, TClock>(clock, queue, visitor);
                 simulator.fillUpdateDispatcher = fillUpdateDispatcher ?? new FillUpdateDispatcher();
                 
                 return simulator;
