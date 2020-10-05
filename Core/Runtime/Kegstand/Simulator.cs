@@ -14,6 +14,7 @@ namespace Kegstand
         bool AddEvent(TimedEvent timedEvent);
         void Register(Stand stand);
         void Update(float deltaTime);
+        IDisposable ObserveKegFill(Keg keg, IObserver<float> kegValueBar);
     }
 
     public partial class Simulator<TTimeValue, TClock> : Simulator 
@@ -144,6 +145,8 @@ namespace Kegstand
                 }
             }
         }
+        
+        public IDisposable ObserveKegFill(Keg keg, IObserver<float> kegValueBar) => fillUpdateDispatcher.GetFillObservable(keg).Subscribe(kegValueBar);
 
         private bool ReplaceEventInIndexIfMatched([NotNull] Keg keg, int index, [NotNull] TimedEvent<TTimeValue> changedEvt)
         {
