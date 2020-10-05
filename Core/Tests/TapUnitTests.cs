@@ -34,7 +34,7 @@ namespace Kegstand.Tests
             Impl.KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             
-            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(10f)));
             
             // When & Then
             //keg.Update(10f);
@@ -54,7 +54,7 @@ namespace Kegstand.Tests
             keg.AddTap(tap);
             keg.AddTap(tap);
             
-            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(10f)));
             
             // When & Then
             // keg.Update(10f);
