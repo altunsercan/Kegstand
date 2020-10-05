@@ -96,7 +96,9 @@ namespace Kegstand
 
         public void Update(float deltaTime)
         {
-            clock.Update(deltaTime); 
+            clock.Update(deltaTime);
+            TTimeValue time = clock.GetCurrentTimePassed();
+            amountVisitor.SetCurrentTimestamp(new Timestamp<TTimeValue>(time));;
             
             ProcessEvents();
 

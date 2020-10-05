@@ -3,7 +3,7 @@ using Kegstand.Impl;
 
 namespace Kegstand
 {
-    public partial class Simulator<TTimeValue, TClock> : Simulator 
+    public partial class Simulator<TTimeValue, TClock>  
     {
         public class Builder
         {

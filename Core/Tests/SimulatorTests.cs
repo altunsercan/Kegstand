@@ -190,7 +190,7 @@ namespace Kegstand.Tests
             simulator.Update(1f);
             
             // Then
-            Assert.AreEqual(1f, amountVisitor.CurrentTimestamp.Time.Seconds);
+            amountVisitor.Received().SetCurrentTimestamp(Arg.Any<Timestamp>());
         }
         
 

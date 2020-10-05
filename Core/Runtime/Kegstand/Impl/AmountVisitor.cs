@@ -17,6 +17,11 @@ namespace Kegstand.Impl
             this.timestamp = timestamp;
         }
 
+        public virtual void SetCurrentTimestamp(Timestamp current)
+        {
+            timestamp = (Timestamp<TTimeValue>) current;
+        }
+
         public float CalculateCurrentAmount(float recordedAmount, float currentFlow, Timestamp recordedTimestamp)
         {
             if (recordedTimestamp == null)
@@ -64,7 +69,9 @@ namespace Kegstand.Impl
         public static NullAmountVisitor Instance = new NullAmountVisitor();
         
         private NullAmountVisitor(){}
-        
+
+        public void SetCurrentTimestamp(Timestamp current) {}
+
         public float CalculateCurrentAmount(float recordedAmount, float currentFlow, Timestamp recordedTimestamp)
         {
             return recordedAmount;
