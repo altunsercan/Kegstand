@@ -175,6 +175,23 @@ namespace Kegstand.Tests
                 clockDelegate.Invoke();
             });
         }
+
+        [Test]
+        public void ShouldUpdateVisitorTimestampOnUpdate()
+        {
+            // Given
+            var builder = new Simulator<TimeSpan, TimeSpanClock>.Builder();
+            var clock = Substitute.For<Clock<TimeSpan>>();
+            var eventQueue = Substitute.For<TimedEventQueue<TimeSpan>>();
+            var amountVisitor = Substitute.For<TimeSpanAmountVisitor>();
+            Simulator<TimeSpan, TimeSpanClock> simulator = builder.Build(clock, eventQueue, amountVisitor);
+            
+            // When
+            simulator.Update(1f);
+            
+            // Then
+            Assert.AreEqual(1f, amountVisitor.CurrentTimestamp.Time.Seconds);
+        }
         
 
         [Test]
