@@ -1,6 +1,7 @@
 ﻿using System;
 using Kegstand.Impl;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Kegstand.Tests
 {
@@ -26,7 +27,9 @@ namespace Kegstand.Tests
         
         [Test]
         [TestCase(1f)]
+        [TestCase(10f)]
         [TestCase(-1f)]
+        [TestCase(-10f)]
         public void TapShouldIncrementKeg(float flowAmount)
         {
             // Given
@@ -40,7 +43,7 @@ namespace Kegstand.Tests
             //keg.Update(10f);
 
             // 
-            Assert.AreEqual(50f+10f*flowAmount, keg.Amount(visitor));
+            Assert.AreEqual(Mathf.Clamp(50f+10f*flowAmount, keg.MinAmount, keg.MaxAmount), keg.Amount(visitor));
         }
 
 

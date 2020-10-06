@@ -22,7 +22,8 @@ namespace Kegstand.Impl
         public float Amount(IAmountVisitor amountVisitor)
         {
             Assert.IsNotNull(amountVisitor);
-            return amountVisitor.CalculateCurrentAmount(amount, AggregateFlow, timestamp);
+            float amountCalculated = amountVisitor.CalculateCurrentAmount(amount, AggregateFlow, timestamp);
+            return Mathf.Clamp(amountCalculated, MinAmount, MaxAmount);
         }
 
         private bool isDirtyAggregateFlow = true;
