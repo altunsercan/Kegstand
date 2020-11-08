@@ -4,7 +4,7 @@ using UnityEngine.Assertions;
 
 namespace Kegstand
 {
-    public partial class Simulator<TTimeValue, TClock>  
+    public partial class Simulator<TTimeValue>  
     {
         public class Builder
         {
@@ -37,13 +37,13 @@ namespace Kegstand
                 return this;
             }
 
-            public Simulator<TTimeValue, TClock> Build()
+            public Simulator<TTimeValue> Build()
             {
                 Assert.IsNotNull(queue);
                 Assert.IsNotNull(visitor);
                 Assert.IsNotNull(clock);
                 
-                var simulator = new Simulator<TTimeValue, TClock>(clock, queue, visitor);
+                var simulator = new Simulator<TTimeValue>(clock, queue, visitor);
                 simulator.fillUpdateDispatcher = fillUpdateDispatcher ?? new FillUpdateDispatcher();
                 
                 return simulator;

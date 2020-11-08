@@ -17,8 +17,7 @@ namespace Kegstand
         IDisposable ObserveKegFill(Keg keg, IObserver<float> kegValueBar);
     }
 
-    public partial class Simulator<TTimeValue, TClock> : Simulator 
-        where TClock : class, Clock<TTimeValue>, new()
+    public partial class Simulator<TTimeValue> : Simulator 
         where TTimeValue : IComparable<TTimeValue>
     {
         [NotNull] private readonly TimedEventQueue<TTimeValue> timedEventsScratchList;

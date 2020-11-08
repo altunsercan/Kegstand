@@ -5,15 +5,15 @@ namespace Kegstand
 {
     public class SimulatorFactory
     {
-        public static Simulator<TimeSpan, TimeSpanClock> CreateDefault(Simulator<TimeSpan, TimeSpanClock>.Builder builder = null)
+        public static Simulator<TimeSpan> CreateDefault(Simulator<TimeSpan>.Builder builder = null)
         {
             builder = CreateDefaultBuilder(builder);
             return builder.Build();
         }
 
-        public static Simulator<TimeSpan, TimeSpanClock>.Builder CreateDefaultBuilder(Simulator<TimeSpan, TimeSpanClock>.Builder builder = null)
+        public static Simulator<TimeSpan>.Builder CreateDefaultBuilder(Simulator<TimeSpan>.Builder builder = null)
         {
-            builder = builder ?? new Simulator<TimeSpan, TimeSpanClock>.Builder();
+            builder = builder ?? new Simulator<TimeSpan>.Builder();
 
             builder.WithClock(new TimeSpanClock());
             builder.WithQueue(new TimedEventQueue<TimeSpan>(timeUnit => TimeSpan.FromSeconds(timeUnit)));
