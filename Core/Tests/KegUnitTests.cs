@@ -201,7 +201,7 @@ namespace Kegstand.Tests
                 kegEventsChangedArgs = args;
             }
         }
-
+        
         [Test]
         public void ShouldCalculateAggregateFlow()
         {

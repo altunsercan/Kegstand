@@ -1,6 +1,7 @@
 ﻿using System;
 using Kegstand.Impl;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Kegstand.Tests
 {
@@ -26,7 +27,9 @@ namespace Kegstand.Tests
         
         [Test]
         [TestCase(1f)]
+        [TestCase(10f)]
         [TestCase(-1f)]
+        [TestCase(-10f)]
         public void TapShouldIncrementKeg(float flowAmount)
         {
             // Given
@@ -34,13 +37,13 @@ namespace Kegstand.Tests
             Impl.KegBase keg = builder.StartWith(50f).Build();
             keg.AddTap(tap);
             
-            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(10f)));
             
             // When & Then
             //keg.Update(10f);
 
             // 
-            Assert.AreEqual(50f+10f*flowAmount, keg.Amount(visitor));
+            Assert.AreEqual(Mathf.Clamp(50f+10f*flowAmount, keg.MinAmount, keg.MaxAmount), keg.Amount(visitor));
         }
 
 
@@ -54,7 +57,7 @@ namespace Kegstand.Tests
             keg.AddTap(tap);
             keg.AddTap(tap);
             
-            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor((TimeSpanTimestamp)TimeSpan.FromSeconds(10f));
+            TimeSpanAmountVisitor visitor = new TimeSpanAmountVisitor(new Timestamp<TimeSpan>(TimeSpan.FromSeconds(10f)));
             
             // When & Then
             // keg.Update(10f);

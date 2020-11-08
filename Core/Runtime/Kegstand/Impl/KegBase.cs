@@ -7,7 +7,8 @@ using UnityEngine.Assertions;
 namespace Kegstand.Impl
 {
     public delegate void KegEventsChangedDelegate([NotNull] KegEventsChangedArgs changes);
-
+    public delegate void KegFillChangedDelegate([NotNull] KegFillChangedArgs args);
+    
     public partial class KegBase : Keg
     {
         public event KegEventsChangedDelegate EventsChanged;
@@ -21,7 +22,8 @@ namespace Kegstand.Impl
         public float Amount(IAmountVisitor amountVisitor)
         {
             Assert.IsNotNull(amountVisitor);
-            return amountVisitor.CalculateCurrentAmount(amount, AggregateFlow, timestamp);
+            float amountCalculated = amountVisitor.CalculateCurrentAmount(amount, AggregateFlow, timestamp);
+            return Mathf.Clamp(amountCalculated, MinAmount, MaxAmount);
         }
 
         private bool isDirtyAggregateFlow = true;
