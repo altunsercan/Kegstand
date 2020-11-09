@@ -1,4 +1,5 @@
 ﻿using System;
+using Kegstand.Impl;
 using NSubstitute;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
@@ -7,6 +8,16 @@ namespace Kegstand.Tests
 {
     public class ContextTests
     {
+        private TestClock clock;
+        private SimulationContext<TimeSpan> context;
+        
+        [SetUp]
+        public void SetupTest()
+        {
+            clock = new TestClock();
+            context = new SimulationContext<TimeSpan>(clock);
+        }
+        
 
         [TestCase(1f, 10f)]
         [TestCase(-3f, 20f)]
@@ -14,9 +25,8 @@ namespace Kegstand.Tests
         {
             // Given
             var keg = Substitute.For<Keg>();
-            var context = new SimulationContext<TimeSpan>();
-            context.SetClockTime(TimeSpan.FromSeconds(secondsOnClock));
-            
+            clock.CurrentTime = TimeSpan.FromSeconds(secondsOnClock);
+
             // When
             context.Values[keg] = new ValueRegistry<TimeSpan>(){ Value = value };
 
@@ -30,7 +40,6 @@ namespace Kegstand.Tests
         {
             // Given
             var keg = Substitute.For<Keg>();
-            var context = new SimulationContext<TimeSpan>();
             
             // When
 
@@ -40,17 +49,31 @@ namespace Kegstand.Tests
         }
 
         [Test]
-        public void ContextShouldKeepClockTimestamp()
+        public void ContextShouldReflectClockTimestamp()
         {
             // Given
-            var context = new SimulationContext<TimeSpan>();
+            clock.CurrentTime = TimeSpan.FromSeconds(10f);
             
             // When
-            context.SetClockTime(TimeSpan.FromSeconds(10f));
 
             // Then
             Assert.AreEqual(TimeSpan.FromSeconds(10f), context.ClockTime);
         }
 
+        // NSubstitute bug with ref return required manual mocking
+        private class TestClock : Clock<TimeSpan>
+        {
+            public TimeSpan CurrentTime;
+            public void Update(float deltaSeconds)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ref TimeSpan GetCurrentTimePassed()
+            {
+                return ref CurrentTime;
+            }
+        }
+        
     }
 }
